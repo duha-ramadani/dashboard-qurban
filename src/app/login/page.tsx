@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -28,9 +29,17 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-sm p-8">
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">Q</span>
+          <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <Image
+              src="/logo.png"
+              alt="Logo Qurban"
+              width={64}
+              height={64}
+              className="rounded-2xl object-contain"
+              priority
+            />
           </div>
           <h1 className="text-xl font-bold text-slate-800">Dashboard Qurban</h1>
           <p className="text-sm text-slate-500 mt-1">Masuk sebagai panitia</p>
@@ -38,7 +47,9 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Email</label>
+            <label className="text-sm font-medium text-slate-700 block mb-1">
+              Email
+            </label>
             <input
               type="email"
               required
@@ -49,7 +60,9 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Password</label>
+            <label className="text-sm font-medium text-slate-700 block mb-1">
+              Password
+            </label>
             <input
               type="password"
               required

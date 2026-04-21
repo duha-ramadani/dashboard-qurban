@@ -11,6 +11,7 @@ import {
   Settings,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -46,9 +47,22 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         collapsed ? "w-16" : "w-56"
       )}
     >
-      <div className={cn("flex items-center gap-3 px-4 py-5 border-b border-slate-100", collapsed && "justify-center px-2")}>
-        <div className="flex-shrink-0 w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-          <span className="text-white text-sm font-bold">Q</span>
+      {/* Logo */}
+      <div
+        className={cn(
+          "flex items-center gap-3 px-4 py-5 border-b border-slate-100",
+          collapsed && "justify-center px-2"
+        )}
+      >
+        <div className="flex-shrink-0 w-8 h-8 relative">
+          <Image
+            src="/logo.png"
+            alt="Logo Qurban"
+            width={32}
+            height={32}
+            className="rounded-lg object-contain"
+            priority
+          />
         </div>
         {!collapsed && (
           <div className="min-w-0">
@@ -58,9 +72,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         )}
       </div>
 
+      {/* Nav */}
       <nav className="flex-1 py-4 overflow-y-auto">
         {navItems.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+          const active =
+            pathname === href ||
+            (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link
               key={href}
@@ -81,6 +98,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         })}
       </nav>
 
+      {/* Footer */}
       <div className="border-t border-slate-100 p-2 space-y-1">
         <button
           onClick={handleLogout}
@@ -100,7 +118,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             collapsed && "justify-center px-2"
           )}
         >
-          <ChevronLeft size={18} className={cn("flex-shrink-0 transition-transform", collapsed && "rotate-180")} />
+          <ChevronLeft
+            size={18}
+            className={cn(
+              "flex-shrink-0 transition-transform",
+              collapsed && "rotate-180"
+            )}
+          />
           {!collapsed && <span>Tutup sidebar</span>}
         </button>
       </div>
