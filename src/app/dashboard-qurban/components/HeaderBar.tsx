@@ -28,7 +28,7 @@ export function HeaderBar({ timeStr, dateStr }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/LOGO_MDH.png"
+          src="/logo.png"
           alt="Logo MDH"
           style={{ height: 76, filter: 'drop-shadow(0 0 12px rgba(109,191,58,0.35))' }}
           onError={(e) => { e.currentTarget.style.display = 'none'; }}
