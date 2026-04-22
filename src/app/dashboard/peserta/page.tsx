@@ -118,15 +118,15 @@ export default function PesertaPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-800">Peserta Qurban</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Data peserta & status pembayaran</p>
+          <h1 className="text-xl font-bold text-slate-800">Shohibul Qurban</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Data shohibul qurban & status pembayaran</p>
         </div>
-        <Button onClick={openAdd}><Plus size={16} /> Tambah Peserta</Button>
+        <Button onClick={openAdd}><Plus size={16} /> Tambah Shohibul Qurban</Button>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Total Peserta", value: peserta.length },
+          { label: "Total Shohibul Qurban", value: peserta.length },
           { label: "Lunas", value: pesertaLunas },
           { label: "Belum Bayar", value: pesertaBelum },
         ].map(({ label, value }) => (
@@ -149,8 +149,8 @@ export default function PesertaPage() {
         {loading ? (
           <div className="py-16 text-center text-sm text-slate-400">Memuat data...</div>
         ) : filtered.length === 0 ? (
-          <EmptyState icon={Users} title="Belum ada peserta" description="Tambahkan peserta qurban pertama Anda"
-            action={<Button onClick={openAdd} size="sm"><Plus size={14} />Tambah Peserta</Button>}
+          <EmptyState icon={Users} title="Belum ada data" description="Tambahkan shohibul qurban pertama"
+            action={<Button onClick={openAdd} size="sm"><Plus size={14} />Tambah Shohibul Qurban</Button>}
           />
         ) : (
           <div className="overflow-x-auto">
@@ -196,10 +196,10 @@ export default function PesertaPage() {
         )}
       </div>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editId ? "Edit Peserta" : "Tambah Peserta"}>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editId ? "Edit Shohibul Qurban" : "Tambah Shohibul Qurban"}>
         <div className="space-y-4">
           <Input label="Nama Lengkap *" value={form.nama}
-            onChange={(e) => setForm({ ...form, nama: e.target.value })} placeholder="Nama peserta" />
+            onChange={(e) => setForm({ ...form, nama: e.target.value })} placeholder="Nama shohibul qurban" />
           <div className="grid grid-cols-2 gap-3">
             <Input label="No. HP / WhatsApp" value={form.no_hp}
               onChange={(e) => setForm({ ...form, no_hp: e.target.value })} placeholder="08xxxxxxxxxx" />
@@ -242,8 +242,8 @@ export default function PesertaPage() {
         </div>
       </Modal>
 
-      <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Hapus Peserta">
-        <p className="text-sm text-slate-600 mb-4">Yakin ingin menghapus data peserta ini? Tindakan ini tidak bisa dibatalkan.</p>
+      <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Hapus Shohibul Qurban">
+        <p className="text-sm text-slate-600 mb-4">Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.</p>
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setDeleteId(null)}>Batal</Button>
           <Button variant="danger" onClick={() => deleteId && handleDelete(deleteId)}>Hapus</Button>

@@ -70,14 +70,14 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard title="Total Peserta" value={loading ? "—" : stats.totalPeserta}
+        <StatCard title="Shohibul Qurban" value={loading ? "—" : stats.totalPeserta}
           subtitle={`${stats.pesertaLunas} lunas · ${stats.pesertaBelumLunas} belum`}
           icon={Users} iconColor="text-blue-600" iconBg="bg-blue-50" />
         <StatCard title="Total Hewan" value={loading ? "—" : stats.totalHewan}
           subtitle={`${stats.sapiCount} sapi · ${stats.kambingDombaCount} kambing/domba`}
           icon={Beef} iconColor="text-orange-600" iconBg="bg-orange-50" />
         <StatCard title="Total Pemasukan" value={loading ? "—" : formatCurrency(stats.totalPemasukan)}
-          subtitle="dari semua peserta" icon={Wallet} iconColor="text-green-600" iconBg="bg-green-50" />
+          subtitle="dari semua shohibul qurban" icon={Wallet} iconColor="text-green-600" iconBg="bg-green-50" />
         <StatCard title="Distribusi" value={loading ? "—" : stats.totalDistribusi}
           subtitle="paket telah dibagikan" icon={PackageOpen} iconColor="text-purple-600" iconBg="bg-purple-50" />
       </div>
@@ -131,10 +131,10 @@ export default function DashboardPage() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Peserta Terbaru</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Shohibul Qurban Terbaru</CardTitle></CardHeader>
         <CardContent className="p-0">
           {recentPeserta.length === 0 ? (
-            <div className="py-10 text-center text-sm text-slate-400">Belum ada data peserta</div>
+            <div className="py-10 text-center text-sm text-slate-400">Belum ada data shohibul qurban</div>
           ) : (
             <table className="w-full text-sm">
               <thead>
@@ -149,9 +149,7 @@ export default function DashboardPage() {
                 {recentPeserta.map((p) => (
                   <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50">
                     <td className="px-6 py-3 font-medium text-slate-800">{p.nama}</td>
-                    <td className="px-6 py-3 text-slate-600">
-                      {p.jenis_hewan === "sapi" ? "Sapi" : "Kambing/Domba"}
-                    </td>
+                    <td className="px-6 py-3 text-slate-600">{p.jenis_hewan === "sapi" ? "Sapi" : "Kambing/Domba"}</td>
                     <td className="px-6 py-3 text-right text-slate-600">{formatCurrency(p.nominal_bayar)}</td>
                     <td className="px-6 py-3 text-right">
                       <Badge variant={p.status_bayar === "lunas" ? "green" : "red"}>
