@@ -25,15 +25,12 @@ const emptyForm = {
   catatan: "",
 };
 
-const jenisPenerimaMap: Record<
-  JenisPenerima,
-  { label: string; variant: "green" | "blue" | "yellow" | "orange" | "gray" }
-> = {
+const jenisPenerimaMap: Record<JenisPenerima, { label: string; variant: "green" | "blue" | "yellow" | "orange" | "gray" }> = {
   shohibul_qurban: { label: "Shohibul Qurban", variant: "green" },
-  warga: { label: "Warga", variant: "blue" },
-  orang_luar: { label: "Orang Luar", variant: "yellow" },
-  panitia: { label: "Panitia", variant: "orange" },
-  lainnya: { label: "Lainnya", variant: "gray" },
+  warga:           { label: "Warga",           variant: "blue" },
+  orang_luar:      { label: "Orang Luar",       variant: "yellow" },
+  panitia:         { label: "Panitia",          variant: "orange" },
+  lainnya:         { label: "Lainnya",          variant: "gray" },
 };
 
 export default function DistribusiPage() {
@@ -100,11 +97,8 @@ export default function DistribusiPage() {
       tanggal_distribusi: form.tanggal_distribusi,
       catatan: form.catatan || null,
     };
-    if (editId) {
-      await supabase.from("distribusi").update(payload).eq("id", editId);
-    } else {
-      await supabase.from("distribusi").insert(payload);
-    }
+    if (editId) { await supabase.from("distribusi").update(payload).eq("id", editId); }
+    else { await supabase.from("distribusi").insert(payload); }
     setSaving(false);
     setModalOpen(false);
     fetchData();
@@ -140,10 +134,7 @@ export default function DistribusiPage() {
           { label: "Total Penerima", value: distribusi.length },
           { label: "Total Paket", value: totalPaket },
           { label: "Total Berat", value: `${totalBerat.toFixed(1)} kg` },
-          {
-            label: "Shohibul Qurban",
-            value: distribusi.filter((d) => d.jenis_penerima === "shohibul_qurban").length,
-          },
+          { label: "Shohibul Qurban", value: distribusi.filter((d) => d.jenis_penerima === "shohibul_qurban").length },
         ].map(({ label, value }) => (
           <div
             key={label}
@@ -164,12 +155,7 @@ export default function DistribusiPage() {
             icon={PackageOpen}
             title="Belum ada data distribusi"
             description="Tambahkan pencatatan distribusi daging qurban"
-            action={
-              <Button onClick={openAdd} size="sm">
-                <Plus size={14} />
-                Tambah Distribusi
-              </Button>
-            }
+            action={<Button onClick={openAdd} size="sm"><Plus size={14} />Tambah Distribusi</Button>}
           />
         ) : (
           <div className="overflow-x-auto">
@@ -189,36 +175,18 @@ export default function DistribusiPage() {
                 {distribusi.map((d) => {
                   const jp = jenisPenerimaMap[d.jenis_penerima];
                   return (
-                    <tr
-                      key={d.id}
-                      className="border-b border-slate-50 hover:bg-slate-50"
-                    >
+                    <tr key={d.id} className="border-b border-slate-50 hover:bg-slate-50">
                       <td className="px-4 py-3 font-medium text-slate-800">
                         {d.nama_penerima}
-                        {d.alamat && (
-                          <p className="text-xs text-slate-400 font-normal">
-                            {d.alamat}
-                          </p>
-                        )}
+                        {d.alamat && <p className="text-xs text-slate-400 font-normal">{d.alamat}</p>}
                       </td>
-                      <td className="px-4 py-3">
-                        <Badge variant={jp.variant}>{jp.label}</Badge>
-                      </td>
-                      <td className="px-4 py-3 text-center text-slate-700 font-medium">
-                        {d.jumlah_paket}
-                      </td>
-                      <td className="px-4 py-3 text-center text-slate-600">
-                        {d.berat_kg ? `${d.berat_kg} kg` : "—"}
-                      </td>
+                      <td className="px-4 py-3"><Badge variant={jp.variant}>{jp.label}</Badge></td>
+                      <td className="px-4 py-3 text-center text-slate-700 font-medium">{d.jumlah_paket}</td>
+                      <td className="px-4 py-3 text-center text-slate-600">{d.berat_kg ? `${d.berat_kg} kg` : "—"}</td>
                       <td className="px-4 py-3 text-slate-600 capitalize">
-                        {d.hewan
-                          ? (d.hewan as Hewan).nama_hewan ??
-                            (d.hewan as Hewan).jenis
-                          : "—"}
+                        {d.hewan ? (d.hewan as Hewan).nama_hewan ?? (d.hewan as Hewan).jenis : "—"}
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
-                        {formatDate(d.tanggal_distribusi)}
-                      </td>
+                      <td className="px-4 py-3 text-slate-600">{formatDate(d.tanggal_distribusi)}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <Button
@@ -248,11 +216,7 @@ export default function DistribusiPage() {
       </div>
 
       {/* Form Modal */}
-      <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={editId ? "Edit Distribusi" : "Tambah Distribusi"}
-      >
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editId ? "Edit Distribusi" : "Tambah Distribusi"}>
         <div className="space-y-4">
           <Input
             label="Nama Penerima *"
@@ -263,27 +227,17 @@ export default function DistribusiPage() {
             placeholder="Nama penerima daging"
           />
           <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="No. HP"
-              value={form.no_hp}
-              onChange={(e) => setForm({ ...form, no_hp: e.target.value })}
-              placeholder="08xxxxxxxxxx"
-            />
+            <Input label="No. HP" value={form.no_hp} onChange={(e) => setForm({ ...form, no_hp: e.target.value })} placeholder="08xxxxxxxxxx" />
             <Select
               label="Jenis Penerima"
               value={form.jenis_penerima}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  jenis_penerima: e.target.value as JenisPenerima,
-                })
-              }
+              onChange={(e) => setForm({ ...form, jenis_penerima: e.target.value as JenisPenerima })}
               options={[
                 { value: "shohibul_qurban", label: "Shohibul Qurban" },
-                { value: "warga", label: "Warga" },
-                { value: "orang_luar", label: "Orang Luar" },
-                { value: "panitia", label: "Panitia" },
-                { value: "lainnya", label: "Lainnya" },
+                { value: "warga",          label: "Warga" },
+                { value: "orang_luar",     label: "Orang Luar" },
+                { value: "panitia",        label: "Panitia" },
+                { value: "lainnya",        label: "Lainnya" },
               ]}
             />
           </div>
@@ -319,26 +273,11 @@ export default function DistribusiPage() {
             onChange={(e) => setForm({ ...form, hewan_id: e.target.value })}
             options={[
               { value: "", label: "— Pilih hewan (opsional) —" },
-              ...hewan.map((h) => ({
-                value: h.id,
-                label: `${h.nama_hewan ?? h.jenis} (${h.jenis})`,
-              })),
+              ...hewan.map((h) => ({ value: h.id, label: `${h.nama_hewan ?? (h.jenis === "sapi" ? "Sapi" : "Kambing/Domba")} (${h.jenis})` })),
             ]}
           />
-          <Input
-            label="Tanggal Distribusi"
-            type="date"
-            value={form.tanggal_distribusi}
-            onChange={(e) =>
-              setForm({ ...form, tanggal_distribusi: e.target.value })
-            }
-          />
-          <Textarea
-            label="Catatan"
-            value={form.catatan}
-            onChange={(e) => setForm({ ...form, catatan: e.target.value })}
-            placeholder="Catatan distribusi..."
-          />
+          <Input label="Tanggal Distribusi" type="date" value={form.tanggal_distribusi} onChange={(e) => setForm({ ...form, tanggal_distribusi: e.target.value })} />
+          <Textarea label="Catatan" value={form.catatan} onChange={(e) => setForm({ ...form, catatan: e.target.value })} placeholder="Catatan distribusi..." />
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setModalOpen(false)}>
               Batal
@@ -353,15 +292,9 @@ export default function DistribusiPage() {
         </div>
       </Modal>
 
-      {/* Confirm Delete Modal */}
-      <Modal
-        open={!!deleteId}
-        onClose={() => setDeleteId(null)}
-        title="Hapus Data Distribusi"
-      >
-        <p className="text-sm text-slate-600 mb-4">
-          Yakin ingin menghapus data distribusi ini?
-        </p>
+      {/* Confirm Delete */}
+      <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Hapus Data Distribusi">
+        <p className="text-sm text-slate-600 mb-4">Yakin ingin menghapus data distribusi ini?</p>
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setDeleteId(null)}>
             Batal

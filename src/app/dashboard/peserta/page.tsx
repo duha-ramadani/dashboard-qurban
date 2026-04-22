@@ -25,16 +25,6 @@ const emptyForm = {
   catatan: "",
 };
 
-const statusBayarOptions = [
-  { value: "lunas", label: "Lunas" },
-  { value: "belum_lunas", label: "Belum Bayar" },
-];
-
-const JENIS_LABEL: Record<JenisHewan, string> = {
-  sapi: "Sapi",
-  kambing_domba: "Kambing/Domba",
-};
-
 export default function PesertaPage() {
   const supabase = createClient();
   const [peserta, setPeserta] = useState<Peserta[]>([]);
@@ -59,7 +49,11 @@ export default function PesertaPage() {
 
   useEffect(() => { fetchData(); }, []);
 
-  function openAdd() { setEditId(null); setForm(emptyForm); setModalOpen(true); }
+  function openAdd() {
+    setEditId(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  }
 
   function openEdit(p: Peserta) {
     setEditId(p.id);
@@ -81,15 +75,10 @@ export default function PesertaPage() {
     if (!form.nama.trim()) return;
     setSaving(true);
     const payload = {
-      nama: form.nama,
-      no_hp: form.no_hp || null,
-      alamat: form.alamat || null,
-      jenis_hewan: form.jenis_hewan,
+      ...form,
+      hewan_id: form.hewan_id || null,
       jumlah_bagian: Number(form.jumlah_bagian),
       nominal_bayar: Number(form.nominal_bayar),
-      status_bayar: form.status_bayar,
-      hewan_id: form.hewan_id || null,
-      catatan: form.catatan || null,
     };
     if (editId) {
       await supabase.from("peserta").update(payload).eq("id", editId);
@@ -107,28 +96,33 @@ export default function PesertaPage() {
     fetchData();
   }
 
-  const filtered = peserta.filter(
-    (p) => p.nama.toLowerCase().includes(search.toLowerCase()) || (p.no_hp ?? "").includes(search)
+  const filtered = peserta.filter((p) =>
+    p.nama.toLowerCase().includes(search.toLowerCase()) ||
+    (p.no_hp ?? "").includes(search)
   );
 
-  const pesertaLunas = peserta.filter((p) => p.status_bayar === "lunas").length;
-  const pesertaBelum = peserta.filter((p) => p.status_bayar !== "lunas").length;
+  const lunas = peserta.filter((p) => p.status_bayar === "lunas").length;
+  const belum = peserta.filter((p) => p.status_bayar === "belum_lunas").length;
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Shohibul Qurban</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Data shohibul qurban & status pembayaran</p>
+          <p className="text-sm text-slate-500 mt-0.5">Data shohibul qurban &amp; status pembayaran</p>
         </div>
-        <Button onClick={openAdd}><Plus size={16} /> Tambah Shohibul Qurban</Button>
+        <Button onClick={openAdd}>
+          <Plus size={16} />
+          Tambah Shohibul Qurban
+        </Button>
       </div>
 
+      {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: "Total Shohibul Qurban", value: peserta.length },
-          { label: "Lunas", value: pesertaLunas },
-          { label: "Belum Bayar", value: pesertaBelum },
+          { label: "Lunas", value: lunas },
+          { label: "Belum Bayar", value: belum },
         ].map(({ label, value }) => (
           <div key={label} className="bg-white rounded-xl border border-slate-200 p-4">
             <p className="text-xs text-slate-500">{label}</p>
@@ -137,20 +131,28 @@ export default function PesertaPage() {
         ))}
       </div>
 
+      {/* Search */}
       <div className="relative max-w-xs">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input type="text" placeholder="Cari nama / no. HP..." value={search}
+        <input
+          type="text"
+          placeholder="Cari nama / no. HP..."
+          value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
         />
       </div>
 
+      {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {loading ? (
           <div className="py-16 text-center text-sm text-slate-400">Memuat data...</div>
         ) : filtered.length === 0 ? (
-          <EmptyState icon={Users} title="Belum ada data" description="Tambahkan shohibul qurban pertama"
-            action={<Button onClick={openAdd} size="sm"><Plus size={14} />Tambah Shohibul Qurban</Button>}
+          <EmptyState
+            icon={Users}
+            title="Belum ada shohibul qurban"
+            description="Tambahkan shohibul qurban pertama"
+            action={<Button onClick={openAdd} size="sm"><Plus size={14} />Tambah</Button>}
           />
         ) : (
           <div className="overflow-x-auto">
@@ -160,7 +162,6 @@ export default function PesertaPage() {
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Nama</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">No. HP</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Hewan</th>
-                  <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Bagian</th>
                   <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Nominal</th>
                   <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
                   <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Aksi</th>
@@ -171,12 +172,15 @@ export default function PesertaPage() {
                   <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50">
                     <td className="px-4 py-3 font-medium text-slate-800">
                       {p.nama}
-                      {p.alamat && <p className="text-xs text-slate-400 font-normal">{p.alamat}</p>}
+                      {p.catatan && <p className="text-xs text-slate-400 font-normal">{p.catatan}</p>}
                     </td>
                     <td className="px-4 py-3 text-slate-600">{p.no_hp ?? "-"}</td>
-                    <td className="px-4 py-3 text-slate-600">{JENIS_LABEL[p.jenis_hewan]}</td>
-                    <td className="px-4 py-3 text-center text-slate-600">{p.jumlah_bagian}</td>
-                    <td className="px-4 py-3 text-right text-slate-700 font-medium">{formatCurrency(p.nominal_bayar)}</td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {p.jenis_hewan === "sapi" ? "🐄 Sapi" : "🐐 Kambing/Domba"}
+                    </td>
+                    <td className="px-4 py-3 text-right text-slate-700 font-medium">
+                      {formatCurrency(p.nominal_bayar)}
+                    </td>
                     <td className="px-4 py-3 text-center">
                       <Badge variant={p.status_bayar === "lunas" ? "green" : "red"}>
                         {p.status_bayar === "lunas" ? "Lunas" : "Belum Bayar"}
@@ -184,8 +188,12 @@ export default function PesertaPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Pencil size={14} /></Button>
-                        <Button variant="ghost" size="sm" onClick={() => setDeleteId(p.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50"><Trash2 size={14} /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => openEdit(p)}>
+                          <Pencil size={14} />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setDeleteId(p.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50">
+                          <Trash2 size={14} />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -196,54 +204,99 @@ export default function PesertaPage() {
         )}
       </div>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editId ? "Edit Shohibul Qurban" : "Tambah Shohibul Qurban"}>
+      {/* Form Modal */}
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editId ? "Edit Shohibul Qurban" : "Tambah Shohibul Qurban"}
+      >
         <div className="space-y-4">
-          <Input label="Nama Lengkap *" value={form.nama}
-            onChange={(e) => setForm({ ...form, nama: e.target.value })} placeholder="Nama shohibul qurban" />
-          <div className="grid grid-cols-2 gap-3">
-            <Input label="No. HP / WhatsApp" value={form.no_hp}
-              onChange={(e) => setForm({ ...form, no_hp: e.target.value })} placeholder="08xxxxxxxxxx" />
-            <Select label="Jenis Hewan" value={form.jenis_hewan}
-              onChange={(e) => setForm({ ...form, jenis_hewan: e.target.value as JenisHewan })}
-              options={[
-                { value: "kambing_domba", label: "Kambing/Domba" },
-                { value: "sapi", label: "Sapi" },
-              ]}
-            />
-          </div>
-          <Textarea label="Alamat" value={form.alamat}
-            onChange={(e) => setForm({ ...form, alamat: e.target.value })} placeholder="Alamat lengkap" />
-          <Select label="Pilih Hewan (opsional)" value={form.hewan_id}
+          <Input
+            label="Nama Lengkap *"
+            value={form.nama}
+            onChange={(e) => setForm({ ...form, nama: e.target.value })}
+            placeholder="Nama shohibul qurban"
+          />
+          <Input
+            label="No. HP / WhatsApp"
+            value={form.no_hp}
+            onChange={(e) => setForm({ ...form, no_hp: e.target.value })}
+            placeholder="08xxxxxxxxxx"
+          />
+          <Textarea
+            label="Alamat"
+            value={form.alamat}
+            onChange={(e) => setForm({ ...form, alamat: e.target.value })}
+            placeholder="Alamat lengkap"
+          />
+          <Select
+            label="Jenis Hewan"
+            value={form.jenis_hewan}
+            onChange={(e) => setForm({ ...form, jenis_hewan: e.target.value as JenisHewan })}
+            options={[
+              { value: "kambing_domba", label: "Kambing/Domba" },
+              { value: "sapi", label: "Sapi" },
+            ]}
+          />
+          <Select
+            label="Pilih Hewan (opsional)"
+            value={form.hewan_id}
             onChange={(e) => setForm({ ...form, hewan_id: e.target.value })}
             options={[
               { value: "", label: "— Belum ditentukan —" },
-              ...hewan.filter((h) => h.jenis === form.jenis_hewan).map((h) => ({
-                value: h.id,
-                label: `${h.nama_hewan ?? JENIS_LABEL[h.jenis]} — ${formatCurrency(h.harga)}`,
-              })),
+              ...hewan
+                .filter((h) => h.jenis === form.jenis_hewan)
+                .map((h) => ({
+                  value: h.id,
+                  label: `${h.nama_hewan ?? (h.jenis === "sapi" ? "Sapi" : "Kambing/Domba")} (${h.status === "sudah_disembelih" ? "Sudah Disembelih" : "Belum"}) — ${formatCurrency(h.harga)}`,
+                })),
             ]}
           />
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Jumlah Bagian" type="number" min={1} value={form.jumlah_bagian}
-              onChange={(e) => setForm({ ...form, jumlah_bagian: Number(e.target.value) })} />
-            <Input label="Nominal Bayar (Rp)" type="number" min={0} value={form.nominal_bayar}
-              onChange={(e) => setForm({ ...form, nominal_bayar: Number(e.target.value) })} />
+            <Input
+              label="Jumlah Bagian"
+              type="number"
+              min={1}
+              value={form.jumlah_bagian}
+              onChange={(e) => setForm({ ...form, jumlah_bagian: Number(e.target.value) })}
+            />
+            <Input
+              label="Nominal Bayar (Rp)"
+              type="number"
+              min={0}
+              value={form.nominal_bayar}
+              onChange={(e) => setForm({ ...form, nominal_bayar: Number(e.target.value) })}
+            />
           </div>
-          <Select label="Status Pembayaran" value={form.status_bayar}
+          <Select
+            label="Status Pembayaran"
+            value={form.status_bayar}
             onChange={(e) => setForm({ ...form, status_bayar: e.target.value as StatusBayar })}
-            options={statusBayarOptions}
+            options={[
+              { value: "lunas", label: "Lunas" },
+              { value: "belum_lunas", label: "Belum Bayar" },
+            ]}
           />
-          <Textarea label="Catatan" value={form.catatan}
-            onChange={(e) => setForm({ ...form, catatan: e.target.value })} placeholder="Catatan tambahan..." />
+          <Textarea
+            label="Catatan"
+            value={form.catatan}
+            onChange={(e) => setForm({ ...form, catatan: e.target.value })}
+            placeholder="Catatan tambahan..."
+          />
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" onClick={() => setModalOpen(false)}>Batal</Button>
-            <Button onClick={handleSave} disabled={saving || !form.nama.trim()}>{saving ? "Menyimpan..." : "Simpan"}</Button>
+            <Button onClick={handleSave} disabled={saving || !form.nama.trim()}>
+              {saving ? "Menyimpan..." : "Simpan"}
+            </Button>
           </div>
         </div>
       </Modal>
 
+      {/* Confirm Delete Modal */}
       <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Hapus Shohibul Qurban">
-        <p className="text-sm text-slate-600 mb-4">Yakin ingin menghapus data ini? Tindakan ini tidak bisa dibatalkan.</p>
+        <p className="text-sm text-slate-600 mb-4">
+          Yakin ingin menghapus data shohibul qurban ini? Tindakan ini tidak bisa dibatalkan.
+        </p>
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setDeleteId(null)}>Batal</Button>
           <Button variant="danger" onClick={() => deleteId && handleDelete(deleteId)}>Hapus</Button>

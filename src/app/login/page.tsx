@@ -31,15 +31,8 @@ export default function LoginPage() {
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-sm p-8">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
-            <Image
-              src="/logo.png"
-              alt="Logo Qurban"
-              width={64}
-              height={64}
-              className="rounded-2xl object-contain"
-              priority
-            />
+          <div className="w-14 h-14 rounded-2xl overflow-hidden mx-auto mb-4">
+            <Image src="/logo.png" alt="Logo Qurban" width={56} height={56} className="w-full h-full object-cover" />
           </div>
           <h1 className="text-xl font-bold text-slate-800">Dashboard Qurban</h1>
           <p className="text-sm text-slate-500 mt-1">Masuk sebagai panitia</p>

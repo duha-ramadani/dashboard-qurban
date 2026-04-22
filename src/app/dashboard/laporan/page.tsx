@@ -9,13 +9,22 @@ import { formatCurrency } from "@/lib/utils";
 import { Download, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const JENIS_PENERIMA_LABEL: Record<string, string> = {
-  shohibul_qurban: "Shohibul Qurban",
-  warga: "Warga",
-  orang_luar: "Orang Luar",
-  panitia: "Panitia",
-  lainnya: "Lainnya",
-};
+async function exportToExcel(
+  sheetName: string,
+  data: Record<string, unknown>[],
+  filename: string
+) {
+  if (data.length === 0) return;
+  const XLSX = await import("xlsx");
+  const ws = XLSX.utils.json_to_sheet(data);
+  const keys = Object.keys(data[0]);
+  ws["!cols"] = keys.map((key) => ({
+    wch: Math.max(key.length, ...data.map((row) => String(row[key] ?? "").length)) + 2,
+  }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split("T")[0]}.xlsx`);
+}
 
 export default function LaporanPage() {
   const supabase = createClient();
@@ -39,70 +48,60 @@ export default function LaporanPage() {
     fetchData();
   }, []);
 
-  async function exportToExcel(data: Record<string, unknown>[], filename: string, sheetName: string) {
-    if (data.length === 0) return;
-    const XLSX = await import("xlsx");
-    const ws = XLSX.utils.json_to_sheet(data);
-    const headers = Object.keys(data[0]);
-    ws["!cols"] = headers.map((key) => ({
-      wch: Math.max(key.length, ...data.map((row) => String(row[key] ?? "").length)) + 2,
-    }));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, sheetName);
-    XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split("T")[0]}.xlsx`);
-  }
+  const totalPemasukan = peserta.reduce((s, p) => s + p.nominal_bayar, 0);
+  const pesertaLunas = peserta.filter((p) => p.status_bayar === "lunas").length;
+  const hewanDisembelih = hewan.filter((h) => h.status === "sudah_disembelih").length;
+  const totalPaket = distribusi.reduce((s, d) => s + d.jumlah_paket, 0);
 
   function downloadPeserta() {
     exportToExcel(
+      "Shohibul Qurban",
       peserta.map((p) => ({
         Nama: p.nama,
         "No HP": p.no_hp ?? "",
         Alamat: p.alamat ?? "",
         "Jenis Hewan": p.jenis_hewan === "sapi" ? "Sapi" : "Kambing/Domba",
         "Jumlah Bagian": p.jumlah_bagian,
-        "Nominal Bayar": p.nominal_bayar,
+        "Nominal Bayar (Rp)": p.nominal_bayar,
         "Status Bayar": p.status_bayar === "lunas" ? "Lunas" : "Belum Bayar",
         Catatan: p.catatan ?? "",
       })),
-      "laporan_peserta", "Peserta"
+      "laporan_shohibul_qurban"
     );
   }
 
   function downloadHewan() {
     exportToExcel(
+      "Data Hewan",
       hewan.map((h) => ({
         Jenis: h.jenis === "sapi" ? "Sapi" : "Kambing/Domba",
-        Nama: h.nama_hewan ?? "",
+        "Nama / Label": h.nama_hewan ?? "",
         "Berat (kg)": h.berat_kg ?? "",
         "Harga (Rp)": h.harga,
-        Status: h.status === "belum_disembelih" ? "Belum Disembelih" : "Sudah Disembelih",
+        Status: h.status === "sudah_disembelih" ? "Sudah Disembelih" : "Belum Disembelih",
         Keterangan: h.keterangan ?? "",
       })),
-      "laporan_hewan", "Hewan"
+      "laporan_hewan"
     );
   }
 
   function downloadDistribusi() {
     exportToExcel(
+      "Distribusi",
       distribusi.map((d) => ({
         "Nama Penerima": d.nama_penerima,
         Alamat: d.alamat ?? "",
         "No HP": d.no_hp ?? "",
-        "Jenis Penerima": JENIS_PENERIMA_LABEL[d.jenis_penerima] ?? d.jenis_penerima,
+        "Jenis Penerima": d.jenis_penerima,
         "Jumlah Paket": d.jumlah_paket,
         "Berat (kg)": d.berat_kg ?? "",
         "Hewan Asal": (d.hewan as Hewan)?.nama_hewan ?? (d.hewan as Hewan)?.jenis ?? "",
         "Tanggal Distribusi": d.tanggal_distribusi,
         Catatan: d.catatan ?? "",
       })),
-      "laporan_distribusi", "Distribusi"
+      "laporan_distribusi"
     );
   }
-
-  const totalPemasukan = peserta.reduce((s, p) => s + p.nominal_bayar, 0);
-  const pesertaLunas = peserta.filter((p) => p.status_bayar === "lunas").length;
-  const hewanSudahDisembelih = hewan.filter((h) => h.status === "sudah_disembelih").length;
-  const totalPaketDistribusi = distribusi.reduce((s, d) => s + d.jumlah_paket, 0);
 
   return (
     <div className="space-y-5">
@@ -111,6 +110,7 @@ export default function LaporanPage() {
         <p className="text-sm text-slate-500 mt-0.5">Ringkasan dan export data qurban</p>
       </div>
 
+      {/* Summary */}
       <Card>
         <CardHeader><CardTitle>Ringkasan Kegiatan Qurban</CardTitle></CardHeader>
         <CardContent>
@@ -119,10 +119,10 @@ export default function LaporanPage() {
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {[
-                { label: "Total Peserta", value: peserta.length, sub: `${pesertaLunas} lunas` },
-                { label: "Total Hewan", value: hewan.length, sub: `${hewanSudahDisembelih} disembelih` },
-                { label: "Total Pemasukan", value: formatCurrency(totalPemasukan), sub: "dari semua peserta" },
-                { label: "Paket Distribusi", value: totalPaketDistribusi, sub: `${distribusi.length} penerima` },
+                { label: "Shohibul Qurban", value: peserta.length,          sub: `${pesertaLunas} lunas` },
+                { label: "Total Hewan",     value: hewan.length,            sub: `${hewanDisembelih} disembelih` },
+                { label: "Total Pemasukan", value: formatCurrency(totalPemasukan), sub: "dari semua shohibul" },
+                { label: "Paket Distribusi",value: totalPaket,              sub: `${distribusi.length} penerima` },
               ].map(({ label, value, sub }) => (
                 <div key={label} className="bg-slate-50 rounded-lg p-4">
                   <p className="text-xs text-slate-500 mb-1">{label}</p>
@@ -135,46 +135,49 @@ export default function LaporanPage() {
         </CardContent>
       </Card>
 
+      {/* Download cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {[
-          {
-            title: "Laporan Peserta",
-            desc: `${peserta.length} data peserta qurban`,
-            icon: FileText,
-            onClick: downloadPeserta,
-            badge: `${pesertaLunas} lunas · ${peserta.length - pesertaLunas} belum`,
-          },
-          {
-            title: "Laporan Hewan",
-            desc: `${hewan.length} ekor hewan`,
-            icon: FileText,
-            onClick: downloadHewan,
-            badge: `${hewan.filter((h) => h.status === "belum_disembelih").length} belum disembelih`,
-          },
-          {
-            title: "Laporan Distribusi",
-            desc: `${distribusi.length} data distribusi`,
-            icon: FileText,
-            onClick: downloadDistribusi,
-            badge: `${totalPaketDistribusi} paket total`,
-          },
-        ].map(({ title, desc, icon: Icon, onClick, badge }) => (
-          <div key={title} className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
-            <div className="flex items-start justify-between">
-              <div className="bg-green-50 p-2.5 rounded-lg"><Icon size={20} className="text-green-600" /></div>
-              <Badge variant="gray">{badge}</Badge>
+        {
+          [
+            {
+              title: "Laporan Shohibul Qurban",
+              desc: `${peserta.length} data shohibul`,
+              badge: `${pesertaLunas} lunas · ${peserta.length - pesertaLunas} belum`,
+              onClick: downloadPeserta,
+            },
+            {
+              title: "Laporan Hewan",
+              desc: `${hewan.length} ekor hewan`,
+              badge: `${hewanDisembelih} disembelih`,
+              onClick: downloadHewan,
+            },
+            {
+              title: "Laporan Distribusi",
+              desc: `${distribusi.length} data distribusi`,
+              badge: `${totalPaket} paket total`,
+              onClick: downloadDistribusi,
+            },
+          ].map(({ title, desc, badge, onClick }) => (
+            <div key={title} className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="bg-green-50 p-2.5 rounded-lg">
+                  <FileText size={20} className="text-green-600" />
+                </div>
+                <Badge variant="gray">{badge}</Badge>
+              </div>
+              <div>
+                <p className="font-semibold text-slate-800">{title}</p>
+                <p className="text-sm text-slate-500">{desc}</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={onClick} className="w-full">
+                <Download size={14} />Download Excel
+              </Button>
             </div>
-            <div>
-              <p className="font-semibold text-slate-800">{title}</p>
-              <p className="text-sm text-slate-500">{desc}</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={onClick} className="w-full">
-              <Download size={14} /> Download Excel
-            </Button>
-          </div>
-        ))}
+          ))
+        }
       </div>
 
+      {/* Rekap per jenis */}
       <Card>
         <CardHeader><CardTitle>Rekap Hewan per Jenis</CardTitle></CardHeader>
         <CardContent className="p-0">
@@ -195,8 +198,8 @@ export default function LaporanPage() {
                     <td className="px-6 py-3 font-medium text-slate-700">
                       {jenis === "sapi" ? "🐄 Sapi" : "🐐 Kambing/Domba"}
                     </td>
-                    <td className="px-6 py-3 text-center">{list.length}</td>
-                    <td className="px-6 py-3 text-center text-amber-600">
+                    <td className="px-6 py-3 text-center font-medium">{list.length}</td>
+                    <td className="px-6 py-3 text-center text-slate-500">
                       {list.filter((h) => h.status === "belum_disembelih").length}
                     </td>
                     <td className="px-6 py-3 text-center text-green-600">

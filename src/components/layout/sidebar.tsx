@@ -47,18 +47,20 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         collapsed ? "w-16" : "w-56"
       )}
     >
+      {/* Logo */}
       <div className={cn("flex items-center gap-3 px-4 py-5 border-b border-slate-100", collapsed && "justify-center px-2")}>
-        <div className="flex-shrink-0 w-8 h-8 relative">
-          <Image src="/logo.png" alt="Logo Qurban" width={32} height={32} className="rounded-lg object-contain" priority />
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg overflow-hidden">
+          <Image src="/logo.png" alt="Logo Qurban" width={32} height={32} className="w-full h-full object-cover" />
         </div>
         {!collapsed && (
           <div className="min-w-0">
             <p className="text-sm font-bold text-slate-800 truncate">Dashboard</p>
-            <p className="text-xs text-slate-400 truncate">Qurban 1446H</p>
+            <p className="text-xs text-slate-400 truncate">Qurban 1447H</p>
           </div>
         )}
       </div>
 
+      {/* Nav */}
       <nav className="flex-1 py-4 overflow-y-auto">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
@@ -78,6 +80,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         })}
       </nav>
 
+      {/* Footer */}
       <div className="border-t border-slate-100 p-2 space-y-1">
         <button onClick={handleLogout}
           className={cn(
