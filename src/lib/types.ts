@@ -1,4 +1,4 @@
-export type JenisHewan = "sapi" | "kambing" | "domba";
+export type JenisHewan = "sapi" | "kambing_domba";
 export type StatusHewan = "belum_disembelih" | "sudah_disembelih";
 export type StatusBayar = "lunas" | "belum_lunas";
 export type JenisPenerima = "shohibul_qurban" | "warga" | "orang_luar" | "panitia" | "lainnya";
@@ -69,6 +69,5 @@ export interface DashboardStats {
   pesertaBelumLunas: number;
   totalDistribusi: number;
   sapiCount: number;
-  kambingCount: number;
-  dombaCount: number;
+  kambingDombaCount: number;
 }
