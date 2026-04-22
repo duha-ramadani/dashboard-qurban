@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -29,8 +30,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-sm p-8">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">Q</span>
+          <div className="w-14 h-14 rounded-2xl overflow-hidden mx-auto mb-4">
+            <Image src="/logo.png" alt="Logo Qurban" width={56} height={56} className="w-full h-full object-cover" />
           </div>
           <h1 className="text-xl font-bold text-slate-800">Dashboard Qurban</h1>
           <p className="text-sm text-slate-500 mt-1">Masuk sebagai panitia</p>

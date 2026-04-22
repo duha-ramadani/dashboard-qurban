@@ -1,8 +1,7 @@
-export type JenisHewan = "sapi" | "kambing" | "domba";
-export type StatusHewan = "tersedia" | "terjual" | "disembelih";
-export type JenisQurban = "qurban" | "aqiqah";
-export type StatusBayar = "lunas" | "belum_lunas" | "dp";
-export type JenisPenerima = "fakir_miskin" | "panitia" | "shohibul_qurban" | "lainnya";
+export type JenisHewan = "sapi" | "kambing_domba";
+export type StatusHewan = "belum_disembelih" | "sudah_disembelih";
+export type StatusBayar = "lunas" | "belum_lunas";
+export type JenisPenerima = "shohibul_qurban" | "warga" | "orang_luar" | "panitia" | "lainnya";
 
 export interface Hewan {
   id: string;
@@ -21,7 +20,6 @@ export interface Peserta {
   nama: string;
   no_hp: string | null;
   alamat: string | null;
-  jenis_qurban: JenisQurban;
   jenis_hewan: JenisHewan;
   jumlah_bagian: number;
   nominal_bayar: number;
@@ -64,13 +62,12 @@ export interface Settings {
 export interface DashboardStats {
   totalPeserta: number;
   totalHewan: number;
-  hewanTersedia: number;
-  hewanDisembelih: number;
+  hewanBelumDisembelih: number;
+  hewanSudahDisembelih: number;
   totalPemasukan: number;
   pesertaLunas: number;
   pesertaBelumLunas: number;
   totalDistribusi: number;
   sapiCount: number;
-  kambingCount: number;
-  dombaCount: number;
+  kambingDombaCount: number;
 }

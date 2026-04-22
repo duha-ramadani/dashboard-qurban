@@ -11,13 +11,14 @@ import {
   Settings,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/peserta", label: "Peserta", icon: Users },
+  { href: "/dashboard/peserta", label: "Shohibul Qurban", icon: Users },
   { href: "/dashboard/hewan", label: "Hewan", icon: Beef },
   { href: "/dashboard/distribusi", label: "Distribusi", icon: PackageOpen },
   { href: "/dashboard/laporan", label: "Laporan", icon: BarChart3 },
@@ -46,18 +47,20 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         collapsed ? "w-16" : "w-56"
       )}
     >
+      {/* Logo */}
       <div className={cn("flex items-center gap-3 px-4 py-5 border-b border-slate-100", collapsed && "justify-center px-2")}>
-        <div className="flex-shrink-0 w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-          <span className="text-white text-sm font-bold">Q</span>
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg overflow-hidden">
+          <Image src="/logo.png" alt="Logo Qurban" width={32} height={32} className="w-full h-full object-cover" />
         </div>
         {!collapsed && (
           <div className="min-w-0">
             <p className="text-sm font-bold text-slate-800 truncate">Dashboard</p>
-            <p className="text-xs text-slate-400 truncate">Qurban 1446H</p>
+            <p className="text-xs text-slate-400 truncate">Qurban 1447H</p>
           </div>
         )}
       </div>
 
+      {/* Nav */}
       <nav className="flex-1 py-4 overflow-y-auto">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
@@ -81,6 +84,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         })}
       </nav>
 
+      {/* Footer */}
       <div className="border-t border-slate-100 p-2 space-y-1">
         <button
           onClick={handleLogout}
