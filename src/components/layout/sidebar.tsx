@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   LayoutDashboard,
   LogOut,
+  Monitor,
   PackageOpen,
   Settings,
   Users,
@@ -82,6 +83,19 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       {/* Footer */}
       <div className="border-t border-slate-100 p-2 space-y-1">
+        <a
+          href="/dashboard-qurban"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(
+            "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-green-50 hover:text-green-700 transition-colors",
+            collapsed && "justify-center px-2"
+          )}
+          title={collapsed ? "Buka Display Dashboard" : undefined}
+        >
+          <Monitor size={18} className="flex-shrink-0" />
+          {!collapsed && <span>Display Dashboard</span>}
+        </a>
         <button onClick={handleLogout}
           className={cn(
             "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors",
