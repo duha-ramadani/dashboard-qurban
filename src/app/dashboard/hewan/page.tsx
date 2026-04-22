@@ -363,8 +363,10 @@ export default function HewanPage() {
           />
           <Input label="Nama / Label Hewan" value={form.nama_hewan} onChange={(e) => setForm({ ...form, nama_hewan: e.target.value })} placeholder="Contoh: Sapi 01" />
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Berat (kg)" type="number" step="0.5" min="0" value={form.berat_kg} onChange={(e) => setForm({ ...form, berat_kg: e.target.value })} placeholder="25" />
-            <Input label="Harga (Rp) *" type="number" min="0" value={form.harga} onChange={(e) => setForm({ ...form, harga: e.target.value })} placeholder="2500000" />
+            <Input label="Berat (kg)" type="number" step="0.5" min="0" value={form.berat_kg}
+              onChange={(e) => setForm({ ...form, berat_kg: e.target.value })} placeholder="25" />
+            <Input label="Harga (Rp) *" type="number" min="0" value={form.harga}
+              onChange={(e) => setForm({ ...form, harga: e.target.value })} placeholder="2500000" />
           </div>
           <Select
             label="Status"

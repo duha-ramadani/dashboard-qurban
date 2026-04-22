@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>Dashboard Qurban Idul Adha 1447H – Masjid Darul Husna</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #1a3d22;
+    --bg2:       #214d2a;
+    --bg3:       #265a30;
+    --green1:    #7ed444;
+    --green2:    #3ec47e;
+    --gold:      #e0b93a;
+    --gold-dim:  #b08a2a;
+    --text:      #f0fdf0;
+    --muted:     #9fd49f;
+    --divider:   #2e6638;
+    --card-glow: 0 0 32px rgba(126,212,68,0.15);
+    --radius:    18px;
+    --font:      'Plus Jakarta Sans', sans-serif;
+  }
+
+  html, body {
+    width: 1920px; height: 1080px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+  }
+
+  /* ─── LAYOUT ─── */
+  .root {
+    display: grid;
+    grid-template-rows: 110px 1fr;
+    width: 1920px; height: 1080px;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 52px;
+    background: var(--bg2);
+    border-bottom: 2px solid var(--divider);
+    position: relative;
+    z-index: 10;
+  }
+
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .header-logo img {
+    height: 76px;
+    filter: drop-shadow(0 0 12px rgba(109,191,58,0.35));
+  }
+  .header-logo-text h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--green1);
+    letter-spacing: .5px;
+    line-height: 1.2;
+  }
+  .header-logo-text p {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .header-title {
+    text-align: center;
+    flex: 1;
+  }
+  .header-title .bismillah {
+    font-family: 'Amiri', serif;
+    font-size: 30px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .header-title h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: .5px;
+  }
+  .header-title .tahun {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+
+  .header-clock {
+    text-align: right;
+    min-width: 260px;
+  }
+  .clock-time {
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--green1);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .clock-date {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 4px;
+    text-align: right;
+    letter-spacing: .5px;
+  }
+
+  /* ─── BODY ─── */
+  .body {
+    display: grid;
+    grid-template-columns: 680px 1fr;
+    gap: 0;
+    height: 970px;
+  }
+
+  /* ─── LEFT PANEL ─── */
+  .left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px 32px 28px 52px;
+    border-right: 2px solid var(--divider);
+    overflow: hidden;
+  }
+
+  .section-label {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  /* Stat cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1.5px solid var(--divider);
+    border-radius: var(--radius);
+    padding: 22px 24px 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--card-glow);
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .stat-card.green::before  { background: linear-gradient(90deg, var(--green1), var(--green2)); }
+  .stat-card.gold::before   { background: linear-gradient(90deg, var(--gold), #e8c55a); }
+  .stat-card.teal::before   { background: linear-gradient(90deg, var(--green2), #2dc4a0); }
+  .stat-card.amber::before  { background: linear-gradient(90deg, #d47c32, #f0a820); }
+
+  .stat-icon {
+    font-size: 72px;
+    line-height: 1;
+    position: absolute;
+    right: 16px;
+    bottom: 12px;
+    opacity: 0.85;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  }
+  .stat-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+  }
+  .stat-value span { font-size: 22px; font-weight: 600; color: var(--muted); margin-left: 4px; }
+  .stat-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* Progress section */
+  .progress-section {
+    background: var(--bg2);
+    border: 1.5px solid var(--divider);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    box-shadow: var(--card-glow);
+    flex-shrink: 0;
+  }
+  .progress-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .progress-row {
+    margin-bottom: 18px;
+  }
+  .progress-row:last-child { margin-bottom: 0; }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .progress-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .progress-count {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--green1);
+  }
+  .progress-count span { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .progress-bar-bg {
+    height: 14px;
+    background: var(--bg3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--green1), var(--green2));
+    transition: width 1.2s ease;
+    position: relative;
+  }
+  .progress-bar-fill.amber {
+    background: linear-gradient(90deg, #d47c32, #f0a820);
+  }
+  .progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 2px; right: 2px;
+    width: 6px; height: 10px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+  }
+
+  /* Paket daging card */
+  .paket-card {
+    background: linear-gradient(135deg, #112a1a 0%, #0e2215 100%);
+    border: 1.5px solid #1e5030;
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-shrink: 0;
+    box-shadow: var(--card-glow);
+  }
+  .paket-icon {
+    font-size: 38px;
+    flex-shrink: 0;
+    align-self: center;
+    line-height: 1;
+  }
+  .paket-info { flex: 1; }
+  .paket-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .paket-value {
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .paket-value span { font-size: 20px; font-weight: 600; color: var(--gold-dim); margin-left: 4px; }
+  .paket-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .paket-progress-mini {
+    flex-shrink: 0;
+    text-align: center;
+    width: 80px;
+  }
+  .paket-pct {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .paket-pct-label {
+    font-size: 12px;
+    color: var(--gold-dim);
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  /* ─── RIGHT PANEL – Shohibul Qurban ─── */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 28px 52px 28px 40px;
+    overflow: hidden;
+  }
+
+  .list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+  .list-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: .5px;
+  }
+  .list-total {
+    font-size: 16px;
+    color: var(--muted);
+    font-weight: 600;
+    background: var(--bg2);
+    border: 1px solid var(--divider);
+    border-radius: 99px;
+    padding: 6px 20px;
+  }
+
+  /* column headers */
+  .list-cols {
+    display: grid;
+    grid-template-columns: 50px 1fr 220px 130px 160px;
+    gap: 0 16px;
+    padding: 12px 20px;
+    background: var(--bg2);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+  .col-label {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .col-label.right { text-align: right; }
+
+  /* scroll container */
+  .scroll-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  .scroll-track {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    /* animation set by JS */
+  }
+
+  .qurban-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 220px 130px 160px;
+    gap: 0 16px;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--bg2);
+    border: 1.5px solid var(--divider);
+    border-radius: 12px;
+    transition: background .2s;
+    flex-shrink: 0;
+  }
+  .qurban-row:nth-child(odd) { background: #0d2115; }
+
+  .row-no {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+    text-align: center;
+  }
+  .row-name {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .row-name .atas-nama {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .row-hewan {
+    text-align: right;
+  }
+  .badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .badge-sapi   { background: rgba(109,191,58,.15); color: var(--green1); border: 1px solid rgba(109,191,58,.3); }
+  .badge-kambing { background: rgba(58,170,109,.15); color: #4ec98a; border: 1px solid rgba(58,170,109,.3); }
+  .row-status {
+    text-align: right;
+  }
+  .status-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-done { background: var(--green1); box-shadow: 0 0 6px var(--green1); }
+  .dot-wait { background: var(--muted); }
+
+  /* ─── TICKER / FOOTER ─── */
+  .footer {
+    grid-column: 1/-1;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg, #0a2212, #0e2a16);
+    border-top: 2px solid var(--divider);
+    padding: 0 52px;
+    height: 44px;
+    gap: 32px;
+    flex-shrink: 0;
+  }
+  .footer-ayat {
+    font-family: 'Amiri', serif;
+    font-size: 17px;
+    color: var(--gold);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .footer-panitia {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Fullscreen button */
+  #fs-btn {
+    position: fixed;
+    bottom: 52px;
+    right: 24px;
+    z-index: 999;
+    background: var(--bg2);
+    border: 1.5px solid var(--divider);
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 10px 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background .2s, color .2s, border-color .2s;
+    font-family: var(--font);
+  }
+  #fs-btn:hover {
+    background: var(--bg3);
+    color: var(--green1);
+    border-color: var(--green1);
+  }
+
+  /* Decorative bg orb */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(120px);
+    opacity: 0.07;
+  }
+  .orb1 { width: 600px; height: 600px; background: var(--green1); top: -100px; right: 200px; }
+  .orb2 { width: 400px; height: 400px; background: var(--green2); bottom: 0; left: 100px; }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="root">
+  <!-- ─── HEADER ─── -->
+  <header>
+    <div class="header-logo">
+      <img src="uploads/LOGO_MDH.png" alt="Logo MDH">
+      <div class="header-logo-text">
+        <h1>Masjid Darul Husna Warungboto</h1>
+        <p>Jl. Veteran No. 148, Warungboto, Umbulharjo, Yogyakarta</p>
+      </div>
+    </div>
+
+    <div class="header-title">
+      <div class="bismillah">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+      <h2>Dashboard Qurban Idul Adha</h2>
+      <div class="tahun">1447 Hijriyah · 2026 Masehi</div>
+    </div>
+
+    <div class="header-clock">
+      <div class="clock-time" id="clock">00:00:00</div>
+      <div class="clock-date" id="date-display">—</div>
+    </div>
+  </header>
+
+  <!-- ─── BODY ─── -->
+  <div class="body">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+
+      <div class="section-label">Rekap Hewan Qurban</div>
+
+      <div class="stats-grid">
+        <!-- Sapi -->
+        <div class="stat-card green">
+          <div class="stat-label">Sapi</div>
+          <div class="stat-value">8 <span>ekor</span></div>
+          <div class="stat-sub">56 shohibul qurban</div>
+          <div class="stat-icon">🐄</div>
+        </div>
+        <!-- Kambing -->
+        <div class="stat-card teal">
+          <div class="stat-label">Kambing / Domba</div>
+          <div class="stat-value">27 <span>ekor</span></div>
+          <div class="stat-sub">27 shohibul qurban</div>
+          <div class="stat-icon">🐐</div>
+        </div>
+      </div>
+
+      <!-- Progress penyembelihan -->
+      <div class="progress-section">
+        <div class="progress-title">📋 Progres Penyembelihan</div>
+
+        <div class="progress-row">
+          <div class="progress-header">
+            <div class="progress-name">🐄 Sapi</div>
+            <div class="progress-count">5 <span>/ 8 ekor</span></div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: 62.5%"></div>
+          </div>
+        </div>
+
+        <div class="progress-row">
+          <div class="progress-header">
+            <div class="progress-name">🐐 Kambing / Domba</div>
+            <div class="progress-count">20 <span>/ 27 ekor</span></div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: 74.1%"></div>
+          </div>
+        </div>
+
+        <div class="progress-row">
+          <div class="progress-header">
+            <div class="progress-name">📦 Total Hewan Disembelih</div>
+            <div class="progress-count">25 <span>/ 35 ekor</span></div>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: 71.4%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paket Daging -->
+      <div class="paket-card" style="padding:14px 20px;">
+        <div class="paket-icon" style="font-size:38px; align-self:center;">🥩</div>
+        <div class="paket-info">
+          <div class="paket-label">Paket Daging Dibagikan</div>
+          <div class="paket-value" style="font-size:44px;">310 <span>paket</span></div>
+          <div class="paket-sub">dari estimasi total 420 paket</div>
+        </div>
+        <div style="width:1.5px; background:var(--divider); height:50px; flex-shrink:0; align-self:center;"></div>
+        <div class="paket-progress-mini" style="width:110px;">
+          <div class="paket-pct" style="font-size:24px; color:var(--green1);">1.240</div>
+          <div class="paket-pct-label" style="color:var(--muted);">KG DIBAGIKAN</div>
+        </div>
+        <div style="width:1.5px; background:var(--divider); height:50px; flex-shrink:0; align-self:center;"></div>
+        <div class="paket-progress-mini">
+          <div class="paket-pct" style="font-size:28px;">74<small style="font-size:16px">%</small></div>
+          <div class="paket-pct-label">TERSALUR</div>
+        </div>
+      </div>
+
+      <!-- Jadwal Sholat -->
+      <div class="progress-section" style="flex:1; min-height:0; display:flex; flex-direction:column;">
+        <div class="progress-title">🕌 Jadwal Sholat Hari Ini</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; height:220px;" id="sholat-grid"></div>
+      </div>
+
+    </div><!-- /left-panel -->
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <div class="list-header">
+        <div class="list-title">🕌 Daftar Shohibul Qurban</div>
+        <div class="list-total" id="list-total">83 Shohibul Qurban</div>
+      </div>
+
+      <div class="list-cols">
+        <div class="col-label" style="text-align:center">No</div>
+        <div class="col-label">Nama Shohibul Qurban</div>
+        <div class="col-label">Alamat</div>
+        <div class="col-label right">Hewan</div>
+        <div class="col-label right">Status</div>
+      </div>
+
+      <div class="scroll-container" id="scrollContainer">
+        <div class="scroll-track" id="scrollTrack"></div>
+      </div>
+
+    </div><!-- /right-panel -->
+
+  </div><!-- /body -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-ayat">
+      "فَصَلِّ لِرَبِّكَ وَانْحَرْ" — Maka dirikanlah shalat karena Tuhanmu dan berkurbanlah. (QS. Al-Kautsar: 2)
+    </div>
+    <div class="footer-panitia">Panitia Qurban Idul Adha 1446H · Masjid Darul Husna Warungboto</div>
+  </div>
+
+</div><!-- /root -->
+
+<button id="fs-btn" onclick="toggleFS()">⛶ Fullscreen</button>
+
+<script>
+// ─── FULLSCREEN ───
+function toggleFS() {
+  const btn = document.getElementById('fs-btn');
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+    btn.innerHTML = '✕ Keluar Fullscreen';
+  } else {
+    document.exitFullscreen();
+    btn.innerHTML = '⛶ Fullscreen';
+  }
+}
+document.addEventListener('fullscreenchange', () => {
+  const btn = document.getElementById('fs-btn');
+  if (!document.fullscreenElement) btn.innerHTML = '⛶ Fullscreen';
+  else btn.innerHTML = '✕ Keluar Fullscreen';
+});
+
+// Auto-hide button
+let hideTimer;
+const fsBtn = document.getElementById('fs-btn');
+function showBtn() {
+  fsBtn.style.opacity = '1';
+  fsBtn.style.pointerEvents = 'auto';
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(() => {
+    fsBtn.style.opacity = '0';
+    fsBtn.style.pointerEvents = 'none';
+  }, 3000);
+}
+fsBtn.style.transition = 'opacity .4s, background .2s, color .2s, border-color .2s';
+document.addEventListener('mousemove', showBtn);
+showBtn();
+
+// ─── LIVE CLOCK ───
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+
+  const days = ['Ahad','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const day = days[now.getDay()];
+  const date = now.getDate();
+  const month = months[now.getMonth()];
+  const year = now.getFullYear();
+  document.getElementById('date-display').textContent = `${day}, ${date} ${month} ${year}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ─── DATA SHOHIBUL QURBAN ───
+const data = [
+  // Sapi 1
+  { no:1,  nama:'H. Ahmad Fauzi',          alamat:'Jl. Warungboto No.12',      hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:2,  nama:'Ir. Bambang Setiawan',    alamat:'Jl. Gedongkuning No.45',    hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:3,  nama:'Dr. Hj. Siti Rahmadhani', alamat:'Jl. Rejowinangun No.7',     hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:4,  nama:'Drs. Muhamad Iqbal',      alamat:'Jl. Pramuka No.88',         hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:5,  nama:'Hj. Fatimah Zahra',       alamat:'Perum Warungboto Indah',    hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:6,  nama:'Agus Triyanto, S.T.',     alamat:'Jl. Veteran No.23',         hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:7,  nama:'Sdr. Wahyu Nugroho',      alamat:'Jl. Sorogenen No.5',        hewan:'Sapi',   berat:'28 kg', done:true  },
+  // Sapi 2
+  { no:8,  nama:'H. Suparman Hadi',        alamat:'Jl. Tegalgendu No.14',      hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:9,  nama:'Ny. Dewi Kusumawati',     alamat:'Jl. Kotagede No.33',        hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:10, nama:'Prof. Lukman Hakim',      alamat:'Jl. Brontokusuman No.2',    hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:11, nama:'Budi Santoso, M.M.',      alamat:'Jl. Tamanan No.9',          hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:12, nama:'Hj. Nur Aini',            alamat:'Jl. Glagah No.17',          hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:13, nama:'Eko Prasetyo',            alamat:'Jl. Warungboto Kidul',      hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:14, nama:'Sri Handayani, S.Pd.',    alamat:'Jl. Rejodani No.6',         hewan:'Sapi',   berat:'27 kg', done:true  },
+  // Sapi 3
+  { no:15, nama:'H. Ridwan Kamali',        alamat:'Jl. Warungboto No.38',      hewan:'Sapi',   berat:'29 kg', done:true  },
+  { no:16, nama:'Dra. Endang Purwanti',    alamat:'Jl. Pakel No.11',           hewan:'Sapi',   berat:'29 kg', done:true  },
+  { no:17, nama:'Rahmat Hidayat',          alamat:'Jl. Gedongkuning No.52',    hewan:'Sapi',   berat:'29 kg', done:true  },
+  { no:18, nama:'Hj. Umi Kalsum',          alamat:'Jl. Pramuka No.19',         hewan:'Sapi',   berat:'29 kg', done:true  },
+  { no:19, nama:'Andi Wicaksono, S.H.',    alamat:'Perum Griya Husna Blok A',  hewan:'Sapi',   berat:'29 kg', done:true  },
+  { no:20, nama:'Nurul Hidayah',           alamat:'Jl. Tegalgendu No.27',      hewan:'Sapi',   berat:'29 kg', done:true  },
+  { no:21, nama:'M. Zainudin Hamid',       alamat:'Jl. Veteran No.40',         hewan:'Sapi',   berat:'29 kg', done:true  },
+  // Sapi 4
+  { no:22, nama:'H. Suryadi Wibowo',       alamat:'Jl. Warungboto No.5',       hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:23, nama:'Khoirul Anwar, S.Ag.',    alamat:'Jl. Sorogenen No.21',       hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:24, nama:'Drs. Yusuf Effendi',      alamat:'Jl. Kotagede No.8',         hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:25, nama:'Hj. Marwiyah',            alamat:'Jl. Gedongkuning No.66',    hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:26, nama:'Teguh Wahyudi',           alamat:'Jl. Brontokusuman No.15',   hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:27, nama:'Farida Ariani, S.E.',     alamat:'Jl. Rejowinangun No.30',    hewan:'Sapi',   berat:'27 kg', done:true  },
+  { no:28, nama:'Abdul Ghofur',            alamat:'Jl. Tamanan No.4',          hewan:'Sapi',   berat:'27 kg', done:true  },
+  // Sapi 5
+  { no:29, nama:'H. Ichwan Firdaus',       alamat:'Jl. Warungboto No.24',      hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:30, nama:'Suhartono, M.T.',         alamat:'Jl. Glagah No.9',           hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:31, nama:"Hj. Lailatus Sa'adah",    alamat:'Perum Warungboto Indah B3', hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:32, nama:'Fandi Ahmad',             alamat:'Jl. Pramuka No.55',         hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:33, nama:'Nur Faizah',              alamat:'Jl. Veteran No.12',         hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:34, nama:'Mahfud Siddiq, S.Sos.',   alamat:'Jl. Kotagede No.44',        hewan:'Sapi',   berat:'28 kg', done:true  },
+  { no:35, nama:'Rr. Ayu Puspitasari',     alamat:'Jl. Rejodani No.17',        hewan:'Sapi',   berat:'28 kg', done:true  },
+  // Sapi 6 (belum)
+  { no:36, nama:'H. Zainal Arifin',        alamat:'Jl. Warungboto No.61',      hewan:'Sapi',   berat:'—',     done:false },
+  { no:37, nama:'Mulyono Hadi',            alamat:'Jl. Tegalgendu No.3',       hewan:'Sapi',   berat:'—',     done:false },
+  { no:38, nama:'Dra. Siti Aminah',        alamat:'Jl. Gedongkuning No.18',    hewan:'Sapi',   berat:'—',     done:false },
+  { no:39, nama:'Hendri Kusuma',           alamat:'Jl. Brontokusuman No.7',    hewan:'Sapi',   berat:'—',     done:false },
+  { no:40, nama:'Hj. Romlah',              alamat:'Jl. Sorogenen No.35',       hewan:'Sapi',   berat:'—',     done:false },
+  { no:41, nama:'Irfan Maulana',           alamat:'Jl. Pramuka No.72',         hewan:'Sapi',   berat:'—',     done:false },
+  { no:42, nama:'Elok Faiqotul',           alamat:'Jl. Tamanan No.20',         hewan:'Sapi',   berat:'—',     done:false },
+  // Sapi 7 (belum)
+  { no:43, nama:'H. Misbahul Munir',       alamat:'Jl. Warungboto No.77',      hewan:'Sapi',   berat:'—',     done:false },
+  { no:44, nama:'Tatik Suryani, S.Pd.',    alamat:'Jl. Veteran No.31',         hewan:'Sapi',   berat:'—',     done:false },
+  { no:45, nama:'Didik Prasetiyo',         alamat:'Jl. Rejowinangun No.14',    hewan:'Sapi',   berat:'—',     done:false },
+  { no:46, nama:'Hj. Niswatun Khasanah',   alamat:'Jl. Kotagede No.59',        hewan:'Sapi',   berat:'—',     done:false },
+  { no:47, nama:'Ahmad Syaifudin',         alamat:'Perum Griya Husna Blok C',  hewan:'Sapi',   berat:'—',     done:false },
+  { no:48, nama:'Niken Rahayu',            alamat:'Jl. Glagah No.28',          hewan:'Sapi',   berat:'—',     done:false },
+  { no:49, nama:'Ustadz Fahmi Hasan',      alamat:'Jl. Gedongkuning No.91',    hewan:'Sapi',   berat:'—',     done:false },
+  // Sapi 8 (belum)
+  { no:50, nama:'H. Subandi Santosa',      alamat:'Jl. Warungboto No.43',      hewan:'Sapi',   berat:'—',     done:false },
+  { no:51, nama:'Wahid Mustofa, S.T.',     alamat:'Jl. Pakel No.6',            hewan:'Sapi',   berat:'—',     done:false },
+  { no:52, nama:'Hj. Khoiriyah',           alamat:'Jl. Sorogenen No.48',       hewan:'Sapi',   berat:'—',     done:false },
+  { no:53, nama:'Taufik Hidayat',          alamat:'Jl. Tegalgendu No.33',      hewan:'Sapi',   berat:'—',     done:false },
+  { no:54, nama:'Siti Rodiyah, S.Ag.',     alamat:'Jl. Rejodani No.22',        hewan:'Sapi',   berat:'—',     done:false },
+  { no:55, nama:'Hamidun Akhsan',          alamat:'Jl. Brontokusuman No.44',   hewan:'Sapi',   berat:'—',     done:false },
+  { no:56, nama:'Riska Amalia, S.E.',      alamat:'Jl. Pramuka No.10',         hewan:'Sapi',   berat:'—',     done:false },
+  // Kambing
+  { no:57, nama:'Ust. Muh. Nur Sidiq',     alamat:'Jl. Warungboto No.3',       hewan:'Kambing', berat:'12 kg', done:true  },
+  { no:58, nama:'Hajah Sumiyati',          alamat:'Jl. Tamanan No.16',         hewan:'Kambing', berat:'11 kg', done:true  },
+  { no:59, nama:'Supardi Hasan',           alamat:'Jl. Glagah No.5',           hewan:'Kambing', berat:'13 kg', done:true  },
+  { no:60, nama:'Yayuk Indrawati',         alamat:'Jl. Kotagede No.22',        hewan:'Kambing', berat:'11 kg', done:true  },
+  { no:61, nama:'Rizal Fauzan',            alamat:'Jl. Veteran No.58',         hewan:'Kambing', berat:'12 kg', done:true  },
+  { no:62, nama:'Tri Wahyuningsih',        alamat:'Jl. Pramuka No.37',         hewan:'Kambing', berat:'12 kg', done:true  },
+  { no:63, nama:'Gunadi Prasetyo',         alamat:'Jl. Sorogenen No.14',       hewan:'Kambing', berat:'13 kg', done:true  },
+  { no:64, nama:'Slamet Riyadi',           alamat:'Jl. Rejowinangun No.9',     hewan:'Kambing', berat:'11 kg', done:true  },
+  { no:65, nama:"Hj. Mu'minah",            alamat:'Jl. Gedongkuning No.40',    hewan:'Kambing', berat:'12 kg', done:true  },
+  { no:66, nama:'Arif Budiarto',           alamat:'Jl. Warungboto No.19',      hewan:'Kambing', berat:'14 kg', done:true  },
+  { no:67, nama:'Sari Kusumandari',        alamat:'Jl. Tegalgendu No.8',       hewan:'Kambing', berat:'11 kg', done:true  },
+  { no:68, nama:'Yoga Firmansyah',         alamat:'Perum Griya Husna Blok B',  hewan:'Kambing', berat:'12 kg', done:true  },
+  { no:69, nama:'Halimah Tusyadiyah',      alamat:'Jl. Brontokusuman No.29',   hewan:'Kambing', berat:'13 kg', done:true  },
+  { no:70, nama:'Didik Kurniawan',         alamat:'Jl. Pakel No.18',           hewan:'Kambing', berat:'12 kg', done:true  },
+  { no:71, nama:'Marsono Hadi',            alamat:'Jl. Kotagede No.11',        hewan:'Kambing', berat:'11 kg', done:true  },
+  { no:72, nama:'Rahayu Lestari',          alamat:'Jl. Rejodani No.4',         hewan:'Kambing', berat:'12 kg', done:true  },
+  { no:73, nama:'Fathur Rahman',           alamat:'Jl. Veteran No.26',         hewan:'Kambing', berat:'13 kg', done:true  },
+  { no:74, nama:'Nita Anggraeni',          alamat:'Jl. Warungboto No.55',      hewan:'Kambing', berat:'11 kg', done:true  },
+  { no:75, nama:'Zulaikha',               alamat:'Jl. Glagah No.42',          hewan:'Kambing', berat:'12 kg', done:true  },
+  { no:76, nama:'Rudy Santosa',            alamat:'Jl. Sorogenen No.7',        hewan:'Kambing', berat:'13 kg', done:true  },
+  { no:77, nama:'Wiwik Setyawati',         alamat:'Jl. Tamanan No.31',         hewan:'Kambing', berat:'—',     done:false },
+  { no:78, nama:'Ahmad Fatoni',            alamat:'Jl. Gedongkuning No.74',    hewan:'Kambing', berat:'—',     done:false },
+  { no:79, nama:'Lastri Purwani',          alamat:'Jl. Pramuka No.63',         hewan:'Kambing', berat:'—',     done:false },
+  { no:80, nama:'Harun Al-Rasyid',         alamat:'Jl. Rejowinangun No.28',    hewan:'Kambing', berat:'—',     done:false },
+  { no:81, nama:'Desi Ratnasari',          alamat:'Jl. Kotagede No.36',        hewan:'Kambing', berat:'—',     done:false },
+  { no:82, nama:'Miftahul Huda',           alamat:'Jl. Warungboto No.82',      hewan:'Kambing', berat:'—',     done:false },
+  { no:83, nama:'Rina Wahyuni',            alamat:'Jl. Brontokusuman No.53',   hewan:'Kambing', berat:'—',     done:false },
+];
+
+// Render rows
+const track = document.getElementById('scrollTrack');
+document.getElementById('list-total').textContent = data.length + ' Shohibul Qurban';
+
+function buildRow(d) {
+  const div = document.createElement('div');
+  div.className = 'qurban-row';
+  const badgeClass = d.hewan === 'Sapi' ? 'badge-sapi' : 'badge-kambing';
+  const dotClass   = d.done ? 'dot-done' : 'dot-wait';
+  const statusTxt  = d.done ? 'Sudah Disembelih' : 'Menunggu';
+  div.innerHTML = `
+    <div class="row-no">${d.no}</div>
+    <div class="row-name">${d.nama}</div>
+    <div class="row-name" style="font-size:15px; font-weight:500; color:var(--muted);">${d.alamat}</div>
+    <div class="row-hewan"><span class="badge ${badgeClass}">${d.hewan}</span></div>
+    <div class="row-status">
+      <span class="status-dot"><span class="dot ${dotClass}"></span>${d.done ? 'Sudah Disembelih' : 'Belum Disembelih'}</span>
+    </div>`;
+  return div;
+}
+
+// Build initial + clone for seamless loop
+data.forEach(d => track.appendChild(buildRow(d)));
+// Clone all rows for loop
+data.forEach(d => {
+  const clone = buildRow(d);
+  track.appendChild(clone);
+});
+
+// ─── JADWAL SHOLAT (static Yogyakarta, update sesuai jadwal riil) ───
+const sholatJadwal = [
+  { nama: 'Subuh',   waktu: '04:23', icon: '🌙' },
+  { nama: 'Terbit',  waktu: '05:42', icon: '🌄' },
+  { nama: 'Dzuhur',  waktu: '11:48', icon: '☀️' },
+  { nama: 'Ashar',   waktu: '15:09', icon: '🌤️' },
+  { nama: 'Maghrib', waktu: '17:44', icon: '🌅' },
+  { nama: 'Isya',    waktu: '18:57', icon: '🌃' },
+];
+
+function renderSholat() {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const grid = document.getElementById('sholat-grid');
+  grid.innerHTML = '';
+
+  // find next sholat
+  let nextIdx = -1;
+  for (let i = 0; i < sholatJadwal.length; i++) {
+    const [h, m] = sholatJadwal[i].waktu.split(':').map(Number);
+    if (h * 60 + m > nowMin) { nextIdx = i; break; }
+  }
+
+  sholatJadwal.forEach((s, i) => {
+    const isNext = i === nextIdx;
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background:${isNext ? 'rgba(126,212,68,0.15)' : 'var(--bg3)'};
+      border:1.5px solid ${isNext ? 'var(--green1)' : 'var(--divider)'};
+      border-radius:12px; padding:8px 14px;
+      display:flex; align-items:center; gap:12px;
+    `;
+    card.innerHTML = `
+      <div style="font-size:28px; line-height:1;">${s.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:${isNext ? 'var(--green1)' : 'var(--muted)'};">${s.nama}${isNext ? ' · Berikutnya' : ''}</div>
+        <div style="font-size:30px; font-weight:800; color:${isNext ? 'var(--text)' : 'var(--muted)'}; line-height:1.1;">${s.waktu}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+renderSholat();
+setInterval(renderSholat, 60000);
+
+// ─── AUTO SCROLL ───
+let scrollY = 0;
+const ROW_HEIGHT = 66; // approx row + gap
+const SPEED = 0.6;     // px per frame
+
+const container = document.getElementById('scrollContainer');
+const totalRows = data.length;
+const loopHeight = totalRows * ROW_HEIGHT;
+
+function scrollStep() {
+  scrollY += SPEED;
+  if (scrollY >= loopHeight) scrollY = 0;
+  track.style.transform = `translateY(-${scrollY}px)`;
+  requestAnimationFrame(scrollStep);
+}
+requestAnimationFrame(scrollStep);
+</script>
+</body>
+</html>

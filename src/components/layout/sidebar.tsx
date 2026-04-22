@@ -65,15 +65,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
-            <Link
-              key={href}
-              href={href}
+            <Link key={href} href={href}
               className={cn(
                 "flex items-center gap-3 mx-2 px-3 py-2.5 rounded-lg text-sm transition-colors mb-0.5",
                 collapsed && "justify-center px-2",
-                active
-                  ? "bg-green-50 text-green-700 font-medium"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                active ? "bg-green-50 text-green-700 font-medium" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               )}
               title={collapsed ? label : undefined}
             >
@@ -86,8 +82,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       {/* Footer */}
       <div className="border-t border-slate-100 p-2 space-y-1">
-        <button
-          onClick={handleLogout}
+        <button onClick={handleLogout}
           className={cn(
             "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors",
             collapsed && "justify-center px-2"
@@ -97,8 +92,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <LogOut size={18} className="flex-shrink-0" />
           {!collapsed && <span>Keluar</span>}
         </button>
-        <button
-          onClick={onToggle}
+        <button onClick={onToggle}
           className={cn(
             "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors",
             collapsed && "justify-center px-2"

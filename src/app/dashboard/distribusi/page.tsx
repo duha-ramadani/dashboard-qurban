@@ -46,7 +46,10 @@ export default function DistribusiPage() {
 
   async function fetchData() {
     const [d, h] = await Promise.all([
-      supabase.from("distribusi").select("*, hewan(*)").order("tanggal_distribusi", { ascending: false }),
+      supabase
+        .from("distribusi")
+        .select("*, hewan(*)")
+        .order("tanggal_distribusi", { ascending: false }),
       supabase.from("hewan").select("*").order("jenis"),
     ]);
     setDistribusi(d.data ?? []);
@@ -54,9 +57,15 @@ export default function DistribusiPage() {
     setLoading(false);
   }
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  function openAdd() { setEditId(null); setForm(emptyForm); setModalOpen(true); }
+  function openAdd() {
+    setEditId(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  }
 
   function openEdit(d: Distribusi) {
     setEditId(d.id);
@@ -109,9 +118,14 @@ export default function DistribusiPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Distribusi Daging</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Pencatatan distribusi daging qurban</p>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Pencatatan distribusi daging qurban
+          </p>
         </div>
-        <Button onClick={openAdd}><Plus size={16} />Tambah Distribusi</Button>
+        <Button onClick={openAdd}>
+          <Plus size={16} />
+          Tambah Distribusi
+        </Button>
       </div>
 
       {/* Summary */}
@@ -122,7 +136,10 @@ export default function DistribusiPage() {
           { label: "Total Berat", value: `${totalBerat.toFixed(1)} kg` },
           { label: "Shohibul Qurban", value: distribusi.filter((d) => d.jenis_penerima === "shohibul_qurban").length },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-white rounded-xl border border-slate-200 p-4">
+          <div
+            key={label}
+            className="bg-white rounded-xl border border-slate-200 p-4"
+          >
             <p className="text-xs text-slate-500">{label}</p>
             <p className="text-xl font-bold text-slate-800 mt-1">{value}</p>
           </div>
@@ -172,8 +189,21 @@ export default function DistribusiPage() {
                       <td className="px-4 py-3 text-slate-600">{formatDate(d.tanggal_distribusi)}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="sm" onClick={() => openEdit(d)}><Pencil size={14} /></Button>
-                          <Button variant="ghost" size="sm" onClick={() => setDeleteId(d.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50"><Trash2 size={14} /></Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEdit(d)}
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteId(d.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 size={14} />
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -188,7 +218,14 @@ export default function DistribusiPage() {
       {/* Form Modal */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editId ? "Edit Distribusi" : "Tambah Distribusi"}>
         <div className="space-y-4">
-          <Input label="Nama Penerima *" value={form.nama_penerima} onChange={(e) => setForm({ ...form, nama_penerima: e.target.value })} placeholder="Nama penerima daging" />
+          <Input
+            label="Nama Penerima *"
+            value={form.nama_penerima}
+            onChange={(e) =>
+              setForm({ ...form, nama_penerima: e.target.value })
+            }
+            placeholder="Nama penerima daging"
+          />
           <div className="grid grid-cols-2 gap-3">
             <Input label="No. HP" value={form.no_hp} onChange={(e) => setForm({ ...form, no_hp: e.target.value })} placeholder="08xxxxxxxxxx" />
             <Select
@@ -204,10 +241,31 @@ export default function DistribusiPage() {
               ]}
             />
           </div>
-          <Textarea label="Alamat" value={form.alamat} onChange={(e) => setForm({ ...form, alamat: e.target.value })} placeholder="Alamat penerima" />
+          <Textarea
+            label="Alamat"
+            value={form.alamat}
+            onChange={(e) => setForm({ ...form, alamat: e.target.value })}
+            placeholder="Alamat penerima"
+          />
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Jumlah Paket" type="number" min={1} value={form.jumlah_paket} onChange={(e) => setForm({ ...form, jumlah_paket: Number(e.target.value) })} />
-            <Input label="Berat Total (kg)" type="number" step="0.1" min="0" value={form.berat_kg} onChange={(e) => setForm({ ...form, berat_kg: e.target.value })} placeholder="2.5" />
+            <Input
+              label="Jumlah Paket"
+              type="number"
+              min={1}
+              value={form.jumlah_paket}
+              onChange={(e) =>
+                setForm({ ...form, jumlah_paket: Number(e.target.value) })
+              }
+            />
+            <Input
+              label="Berat Total (kg)"
+              type="number"
+              step="0.1"
+              min="0"
+              value={form.berat_kg}
+              onChange={(e) => setForm({ ...form, berat_kg: e.target.value })}
+              placeholder="2.5"
+            />
           </div>
           <Select
             label="Dari Hewan"
@@ -221,8 +279,15 @@ export default function DistribusiPage() {
           <Input label="Tanggal Distribusi" type="date" value={form.tanggal_distribusi} onChange={(e) => setForm({ ...form, tanggal_distribusi: e.target.value })} />
           <Textarea label="Catatan" value={form.catatan} onChange={(e) => setForm({ ...form, catatan: e.target.value })} placeholder="Catatan distribusi..." />
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => setModalOpen(false)}>Batal</Button>
-            <Button onClick={handleSave} disabled={saving || !form.nama_penerima.trim()}>{saving ? "Menyimpan..." : "Simpan"}</Button>
+            <Button variant="secondary" onClick={() => setModalOpen(false)}>
+              Batal
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={saving || !form.nama_penerima.trim()}
+            >
+              {saving ? "Menyimpan..." : "Simpan"}
+            </Button>
           </div>
         </div>
       </Modal>
@@ -231,8 +296,15 @@ export default function DistribusiPage() {
       <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Hapus Data Distribusi">
         <p className="text-sm text-slate-600 mb-4">Yakin ingin menghapus data distribusi ini?</p>
         <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeleteId(null)}>Batal</Button>
-          <Button variant="danger" onClick={() => deleteId && handleDelete(deleteId)}>Hapus</Button>
+          <Button variant="secondary" onClick={() => setDeleteId(null)}>
+            Batal
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => deleteId && handleDelete(deleteId)}
+          >
+            Hapus
+          </Button>
         </div>
       </Modal>
     </div>
