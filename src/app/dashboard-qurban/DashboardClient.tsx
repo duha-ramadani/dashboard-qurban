@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FooterBar } from './components/FooterBar';
 import { HeaderBar } from './components/HeaderBar';
 import { LeftPanel } from './components/LeftPanel';
+import type { JadwalSholat } from './components/LeftPanel';
 import { ScrollList } from './components/ScrollList';
 import type { PesertaRow } from './components/ScrollList';
 
@@ -26,15 +27,16 @@ function useScaleToFit(w = 1920, h = 1080) {
 
 const DAYS_ID   = ['Ahad','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const MONTHS_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-const JADWAL_TIMES = ['04:23','05:42','11:48','15:09','17:44','18:57'];
+const HIJRIAH_MONTHS = ['Muharram','Safar','Rabiul Awal','Rabiul Akhir','Jumadil Awal','Jumadil Akhir','Rajab',"Sya'ban",'Ramadhan','Syawal',"Dzulqa'dah",'Dzulhijjah'];
 
-function getNextIdx(now: Date) {
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  return JADWAL_TIMES.findIndex(t => {
-    const [h, m] = t.split(':').map(Number);
-    return h * 60 + m > nowMin;
-  });
-}
+const JADWAL_FALLBACK: JadwalSholat[] = [
+  { nama: 'Subuh',   waktu: '04:23', icon: '🌙' },
+  { nama: 'Terbit',  waktu: '05:42', icon: '🌄' },
+  { nama: 'Dzuhur',  waktu: '11:48', icon: '☀️' },
+  { nama: 'Ashar',   waktu: '15:09', icon: '⛅' },
+  { nama: 'Maghrib', waktu: '17:44', icon: '🌅' },
+  { nama: 'Isya',    waktu: '18:57', icon: '🌃' },
+];
 
 export default function DashboardClient() {
   const supabase  = createClient();
@@ -44,6 +46,8 @@ export default function DashboardClient() {
   const [peserta,    setPeserta]    = useState<PesertaRow[]>([]);
   const [distribusi, setDistribusi] = useState<DistribusiRow[]>([]);
   const [panitia,    setPanitia]    = useState('Panitia Qurban');
+  const [jadwal,     setJadwal]     = useState<JadwalSholat[]>(JADWAL_FALLBACK);
+  const [hijriahStr, setHijriahStr] = useState('');
   const [showFs,     setShowFs]     = useState(true);
   const [isFs,       setIsFs]       = useState(false);
   const fsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -61,6 +65,37 @@ export default function DashboardClient() {
     setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
+  }, []);
+
+  // Jadwal sholat + tanggal hijriah dari Aladhan API
+  useEffect(() => {
+    async function fetchJadwal() {
+      try {
+        const today = new Date();
+        const d = today.getDate();
+        const m = today.getMonth() + 1;
+        const y = today.getFullYear();
+        const res = await fetch(
+          `https://api.aladhan.com/v1/timingsByCity/${d}-${m}-${y}?city=Yogyakarta&country=Indonesia&method=11`
+        );
+        const json = await res.json();
+        const t = json.data.timings;
+        const h = json.data.date.hijri;
+        setJadwal([
+          { nama: 'Subuh',   waktu: t.Fajr.slice(0, 5),    icon: '🌙' },
+          { nama: 'Terbit',  waktu: t.Sunrise.slice(0, 5),  icon: '🌄' },
+          { nama: 'Dzuhur',  waktu: t.Dhuhr.slice(0, 5),    icon: '☀️' },
+          { nama: 'Ashar',   waktu: t.Asr.slice(0, 5),      icon: '⛅' },
+          { nama: 'Maghrib', waktu: t.Maghrib.slice(0, 5),  icon: '🌅' },
+          { nama: 'Isya',    waktu: t.Isha.slice(0, 5),     icon: '🌃' },
+        ]);
+        const bulan = HIJRIAH_MONTHS[Number(h.month.number) - 1] ?? h.month.en;
+        setHijriahStr(`${h.day} ${bulan} ${h.year} H`);
+      } catch {
+        // fallback sudah di-set sebagai initial state
+      }
+    }
+    fetchJadwal();
   }, []);
 
   // Data + Realtime
@@ -118,14 +153,21 @@ export default function DashboardClient() {
   const totalPaket     = distribusi.reduce((s, d) => s + d.jumlah_paket, 0);
   const totalBerat     = distribusi.reduce((s, d) => s + (d.berat_kg ?? 0), 0);
 
-  // Clock
+  // Clock strings
   const timeStr = now
     ? [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2, '0')).join(':')
     : '00:00:00';
   const dateStr = now
     ? `${DAYS_ID[now.getDay()]}, ${now.getDate()} ${MONTHS_ID[now.getMonth()]} ${now.getFullYear()}`
     : '—';
-  const nextIdx = now ? getNextIdx(now) : -1;
+
+  // Next prayer index
+  const nextIdx = now
+    ? jadwal.findIndex(({ waktu }) => {
+        const [hh, mm] = waktu.split(':').map(Number);
+        return hh * 60 + mm > now.getHours() * 60 + now.getMinutes();
+      })
+    : -1;
 
   return (
     <>
@@ -144,7 +186,7 @@ export default function DashboardClient() {
         {/* Root grid */}
         <div style={{ display: 'grid', gridTemplateRows: '110px 1fr 44px', width: 1920, height: 1080 }}>
 
-          <HeaderBar timeStr={timeStr} dateStr={dateStr} />
+          <HeaderBar timeStr={timeStr} dateStr={dateStr} hijriahStr={hijriahStr} />
 
           {/* Body */}
           <div style={{ display: 'grid', gridTemplateColumns: '680px 1fr', overflow: 'hidden' }}>
@@ -160,6 +202,7 @@ export default function DashboardClient() {
               totalPaket={totalPaket}
               totalBerat={totalBerat}
               nextIdx={nextIdx}
+              jadwal={jadwal}
             />
 
             {/* Right panel */}

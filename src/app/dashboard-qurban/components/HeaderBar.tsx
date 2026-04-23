@@ -15,9 +15,10 @@ const F = {
 interface Props {
   timeStr: string;
   dateStr: string;
+  hijriahStr?: string;
 }
 
-export function HeaderBar({ timeStr, dateStr }: Props) {
+export function HeaderBar({ timeStr, dateStr, hijriahStr }: Props) {
   return (
     <header style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -46,7 +47,7 @@ export function HeaderBar({ timeStr, dateStr }: Props) {
       {/* Center title */}
       <div style={{ textAlign: 'center', flex: 1 }}>
         <div style={{ fontFamily: F.arabic, fontSize: 30, color: C.gold, lineHeight: 1, marginBottom: 4 }}>
-          بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
+          بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
         </div>
         <div style={{ fontSize: 26, fontWeight: 800, color: C.text, letterSpacing: '.5px' }}>
           Dashboard Qurban Idul Adha
@@ -61,7 +62,12 @@ export function HeaderBar({ timeStr, dateStr }: Props) {
         <div style={{ fontSize: 52, fontWeight: 800, color: C.green1, letterSpacing: '2px', lineHeight: 1 }}>
           {timeStr}
         </div>
-        <div style={{ fontSize: 15, color: C.muted, fontWeight: 500, marginTop: 4, letterSpacing: '.5px' }}>
+        {hijriahStr && (
+          <div style={{ fontSize: 14, color: C.gold, fontWeight: 600, marginTop: 3, letterSpacing: '.5px' }}>
+            {hijriahStr}
+          </div>
+        )}
+        <div style={{ fontSize: 14, color: C.muted, fontWeight: 500, marginTop: 2, letterSpacing: '.5px' }}>
           {dateStr}
         </div>
       </div>
