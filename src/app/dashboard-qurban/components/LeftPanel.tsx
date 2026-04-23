@@ -10,16 +10,13 @@ const C = {
   div:     '#2e6638',
 } as const;
 
-const JADWAL = [
-  { nama: 'Subuh',   waktu: '04:23', icon: '🌙' },
-  { nama: 'Terbit',  waktu: '05:42', icon: '🌄' },
-  { nama: 'Dzuhur',  waktu: '11:48', icon: '☀️' },
-  { nama: 'Ashar',   waktu: '15:09', icon: '⛅' },
-  { nama: 'Maghrib', waktu: '17:44', icon: '🌅' },
-  { nama: 'Isya',    waktu: '18:57', icon: '🌃' },
-];
-
 const glow = '0 0 32px rgba(126,212,68,0.15)';
+
+export interface JadwalSholat {
+  nama: string;
+  waktu: string;
+  icon: string;
+}
 
 interface Props {
   sapiTotal: number;
@@ -33,6 +30,7 @@ interface Props {
   totalPaket: number;
   totalBerat: number;
   nextIdx: number;
+  jadwal: JadwalSholat[];
 }
 
 function pct(done: number, total: number) {
@@ -45,7 +43,7 @@ export function LeftPanel({
   sapiDone, kambingDone,
   totalDone, totalHewan,
   totalPaket, totalBerat,
-  nextIdx,
+  nextIdx, jadwal,
 }: Props) {
   return (
     <div style={{
@@ -59,7 +57,7 @@ export function LeftPanel({
         Rekap Hewan Qurban
       </div>
 
-      {/* Stat cards — count dikecilkan sedikit agar jadwal di bawah tidak terpotong */}
+      {/* Stat cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, flexShrink: 0 }}>
         {[
           { label: 'Sapi', count: sapiTotal, sub: `${sapiPeserta} shohibul qurban`, emoji: '🐄', accent: `linear-gradient(90deg,${C.green1},${C.green2})` },
@@ -77,7 +75,7 @@ export function LeftPanel({
         ))}
       </div>
 
-      {/* Progress penyembelihan — bar lebih tipis, jarak antar row dikurangi */}
+      {/* Progress penyembelihan */}
       <div style={{ background: C.bg2, border: `1.5px solid ${C.div}`, borderRadius: 18, padding: '20px 28px', boxShadow: glow, flexShrink: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: C.muted, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 10 }}>
           Progres Penyembelihan
@@ -117,13 +115,13 @@ export function LeftPanel({
         </div>
       </div>
 
-      {/* Jadwal sholat — ukuran dikembalikan ke semula */}
+      {/* Jadwal sholat */}
       <div style={{ background: C.bg2, border: `1.5px solid ${C.div}`, borderRadius: 18, padding: '24px 28px', boxShadow: glow, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: C.muted, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: 12, flexShrink: 0 }}>
           Jadwal Sholat Hari Ini
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flex: 1, minHeight: 0 }}>
-          {JADWAL.map((s, i) => {
+          {jadwal.map((s, i) => {
             const active = i === nextIdx;
             return (
               <div key={s.nama} style={{

@@ -41,7 +41,7 @@ export default function DashboardPage() {
     async function fetchData() {
       try {
         const [pesertaRes, hewanRes, distribusiRes, settingsRes] = await Promise.all([
-          supabase.from("peserta").select("*").order("created_at", { ascending: false }),
+          supabase.from("peserta").select("*, hewan(*)").order("created_at", { ascending: false }),
           supabase.from("hewan").select("*"),
           supabase.from("distribusi").select("id"),
           supabase.from("settings").select("*").limit(1).single(),
@@ -219,8 +219,9 @@ export default function DashboardPage() {
               <thead>
                 <tr className="border-b border-slate-100">
                   <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Nama</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Alamat</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">No. HP</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Hewan</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Bayar</th>
                   <th className="text-right px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
                 </tr>
               </thead>
@@ -228,10 +229,11 @@ export default function DashboardPage() {
                 {recentPeserta.map((p) => (
                   <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50">
                     <td className="px-6 py-3 font-medium text-slate-800">{p.nama}</td>
+                    <td className="px-6 py-3 text-slate-600">{p.alamat ?? "-"}</td>
+                    <td className="px-6 py-3 text-slate-600">{p.no_hp ?? "-"}</td>
                     <td className="px-6 py-3 text-slate-600">
-                      {p.jenis_hewan === "sapi" ? "🐄 Sapi" : "🐐 Kambing/Domba"}
+                      {p.hewan?.nama_hewan ?? (p.jenis_hewan === "sapi" ? "🐄 Sapi" : "🐐 Kambing/Domba")}
                     </td>
-                    <td className="px-6 py-3 text-slate-600">{formatCurrency(p.nominal_bayar)}</td>
                     <td className="px-6 py-3 text-right">
                       <Badge variant={p.status_bayar === "lunas" ? "green" : "red"}>
                         {p.status_bayar === "lunas" ? "Lunas" : "Belum"}
