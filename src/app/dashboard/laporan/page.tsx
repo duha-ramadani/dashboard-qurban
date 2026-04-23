@@ -36,7 +36,7 @@ export default function LaporanPage() {
   useEffect(() => {
     async function fetchData() {
       const [p, h, d] = await Promise.all([
-        supabase.from("peserta").select("*").order("nama"),
+        supabase.from("peserta").select("*, hewan(*)").order("nama"),
         supabase.from("hewan").select("*").order("jenis"),
         supabase.from("distribusi").select("*, hewan(*)").order("tanggal_distribusi", { ascending: false }),
       ]);
@@ -60,7 +60,7 @@ export default function LaporanPage() {
         Nama: p.nama,
         "No HP": p.no_hp ?? "",
         Alamat: p.alamat ?? "",
-        "Jenis Hewan": p.jenis_hewan === "sapi" ? "Sapi" : "Kambing/Domba",
+        "Hewan": p.hewan?.nama_hewan ?? (p.jenis_hewan === "sapi" ? "Sapi" : "Kambing/Domba"),
         "Jumlah Bagian": p.jumlah_bagian,
         "Nominal Bayar (Rp)": p.nominal_bayar,
         "Status Bayar": p.status_bayar === "lunas" ? "Lunas" : "Belum Bayar",
