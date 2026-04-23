@@ -18,7 +18,7 @@ export interface PesertaRow {
   nama: string;
   alamat: string | null;
   jenis_hewan: string;
-  hewan: { status: string } | null;
+  hewan: { status: string; nama_hewan: string | null } | null;
 }
 
 export function ScrollList({ rows }: { rows: PesertaRow[] }) {
@@ -54,6 +54,7 @@ export function ScrollList({ rows }: { rows: PesertaRow[] }) {
           const idx    = i % rows.length;
           const isSapi = p.jenis_hewan === 'sapi';
           const isDone = p.hewan?.status === 'sudah_disembelih';
+          const namaHewan = p.hewan?.nama_hewan || (isSapi ? 'Sapi' : 'Kambing/Domba');
           return (
             <div
               key={`${p.id}-${i}`}
@@ -86,7 +87,7 @@ export function ScrollList({ rows }: { rows: PesertaRow[] }) {
                   color: isSapi ? C.green1 : '#4ec98a',
                   border: `1px solid ${isSapi ? 'rgba(109,191,58,.3)' : 'rgba(58,170,109,.3)'}`,
                 }}>
-                  {isSapi ? 'Sapi' : 'Kambing'}
+                  {namaHewan}
                 </span>
               </div>
               <div style={{ textAlign: 'right' }}>

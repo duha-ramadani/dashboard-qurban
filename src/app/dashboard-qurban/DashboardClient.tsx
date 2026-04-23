@@ -68,7 +68,7 @@ export default function DashboardClient() {
     async function load() {
       const [h, p, d, s] = await Promise.all([
         supabase.from('hewan').select('jenis, status'),
-        supabase.from('peserta').select('id, nama, alamat, jenis_hewan, hewan(status)').order('created_at'),
+        supabase.from('peserta').select('id, nama, alamat, jenis_hewan, hewan(status, nama_hewan)').order('created_at'),
         supabase.from('distribusi').select('jumlah_paket, berat_kg'),
         supabase.from('settings').select('nama_panitia').limit(1).single(),
       ]);
