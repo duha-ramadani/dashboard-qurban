@@ -75,7 +75,6 @@ function DraggableCard({
             </span>
           </div>
           {h.berat_kg && <p className="text-xs text-slate-400">{h.berat_kg} kg</p>}
-          <p className="text-sm font-medium text-green-600 mt-1">{formatCurrency(h.harga)}</p>
           {h.keterangan && (
             <p className="text-xs text-slate-400 mt-1 truncate">{h.keterangan}</p>
           )}
@@ -296,7 +295,6 @@ export default function HewanPage() {
                     {activeHewan.nama_hewan ?? JENIS_LABEL[activeHewan.jenis]}
                   </span>
                 </div>
-                <p className="text-sm font-medium text-green-600 mt-1">{formatCurrency(activeHewan.harga)}</p>
               </div>
             )}
           </DragOverlay>
