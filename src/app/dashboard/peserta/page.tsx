@@ -160,9 +160,9 @@ export default function PesertaPage() {
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50">
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Nama</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Alamat</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">No. HP</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Hewan</th>
-                  <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Nominal</th>
                   <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
                   <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Aksi</th>
                 </tr>
@@ -174,12 +174,10 @@ export default function PesertaPage() {
                       {p.nama}
                       {p.catatan && <p className="text-xs text-slate-400 font-normal">{p.catatan}</p>}
                     </td>
+                    <td className="px-4 py-3 text-slate-600">{p.alamat ?? "-"}</td>
                     <td className="px-4 py-3 text-slate-600">{p.no_hp ?? "-"}</td>
                     <td className="px-4 py-3 text-slate-600">
-                      {p.jenis_hewan === "sapi" ? "🐄 Sapi" : "🐐 Kambing/Domba"}
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-700 font-medium">
-                      {formatCurrency(p.nominal_bayar)}
+                      {p.hewan?.nama_hewan ?? (p.jenis_hewan === "sapi" ? "🐄 Sapi" : "🐐 Kambing/Domba")}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <Badge variant={p.status_bayar === "lunas" ? "green" : "red"}>
