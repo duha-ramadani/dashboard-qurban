@@ -23,7 +23,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { createClient } from "@/lib/supabase/client";
 import { Hewan, JenisHewan, StatusHewan } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
-import { Beef, GripVertical, LayoutGrid, List, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Beef, GripVertical, LayoutGrid, List, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const emptyForm = {
@@ -130,6 +130,7 @@ export default function HewanPage() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
   const [filterJenis, setFilterJenis] = useState<"semua" | JenisHewan>("semua");
+  const [sortAsc, setSortAsc] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
@@ -204,7 +205,8 @@ export default function HewanPage() {
     await supabase.from("hewan").update({ status: newStatus }).eq("id", h.id);
   }
 
-  const filtered = filterJenis === "semua" ? hewan : hewan.filter((h) => h.jenis === filterJenis);
+  const filtered = (filterJenis === "semua" ? hewan : hewan.filter((h) => h.jenis === filterJenis));
+  const sorted = sortAsc ? [...filtered].reverse() : filtered;
   const counts = {
     sapi: hewan.filter((h) => h.jenis === "sapi").length,
     kambing_domba: hewan.filter((h) => h.jenis === "kambing_domba").length,
@@ -243,7 +245,7 @@ export default function HewanPage() {
       </div>
 
       {/* Filter */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap">
         {([
           { key: "semua", label: `Semua (${hewan.length})` },
           { key: "sapi", label: `🐄 Sapi (${counts.sapi})` },
@@ -261,11 +263,19 @@ export default function HewanPage() {
             {label}
           </button>
         ))}
+        <button
+          onClick={() => setSortAsc((v) => !v)}
+          title={sortAsc ? "Urutan: Terlama dulu" : "Urutan: Terbaru dulu"}
+          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+        >
+          {sortAsc ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+          {sortAsc ? "Terlama" : "Terbaru"}
+        </button>
       </div>
 
       {loading ? (
         <div className="py-16 text-center text-sm text-slate-400">Memuat data...</div>
-      ) : filtered.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <EmptyState
           icon={Beef}
           title="Belum ada data hewan"
@@ -277,10 +287,10 @@ export default function HewanPage() {
           <div className="flex gap-4">
             {STATUS_COLS.map(({ id, label, variant }) => (
               <DroppableColumn key={id} status={id} label={label} variant={variant}>
-                {filtered.filter((h) => h.status === id).map((h) => (
+                {sorted.filter((h) => h.status === id).map((h) => (
                   <DraggableCard key={h.id} h={h} onEdit={openEdit} onDelete={(id) => setDeleteId(id)} />
                 ))}
-                {filtered.filter((h) => h.status === id).length === 0 && (
+                {sorted.filter((h) => h.status === id).length === 0 && (
                   <p className="text-xs text-slate-400 text-center py-8">Tidak ada hewan</p>
                 )}
               </DroppableColumn>
@@ -314,7 +324,7 @@ export default function HewanPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((h) => (
+                {sorted.map((h) => (
                   <tr key={h.id} className="border-b border-slate-50 hover:bg-slate-50">
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-1.5">
