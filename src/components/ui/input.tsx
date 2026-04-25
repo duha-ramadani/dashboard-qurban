@@ -23,6 +23,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             error && "border-red-400 focus:border-red-400 focus:ring-red-400",
             className
           )}
+          onWheel={props.type === "number" ? (e) => e.currentTarget.blur() : undefined}
           {...props}
         />
         {error && <p className="text-xs text-red-600">{error}</p>}
