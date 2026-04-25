@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useRef, useState } from 'react';
+import { DistribusiScrollList } from './components/DistribusiScrollList';
+import type { DistribusiRow } from './components/DistribusiScrollList';
 import { FooterBar } from './components/FooterBar';
 import { HeaderBar } from './components/HeaderBar';
 import { LeftPanel } from './components/LeftPanel';
@@ -9,10 +11,14 @@ import type { JadwalSholat } from './components/LeftPanel';
 import { ScrollList } from './components/ScrollList';
 import type { PesertaRow } from './components/ScrollList';
 
-const C = { bg: '#1a3d22', bg2: '#214d2a', green1: '#7ed444', green2: '#3ec47e', div: '#2e6638' } as const;
+const C = { bg: '#1a3d22', bg2: '#214d2a', green1: '#7ed444', green2: '#3ec47e', div: '#2e6638', gold: '#e0b93a' } as const;
 
 interface HewanRow { jenis: string; status: string; }
-interface DistribusiRow { jumlah_paket: number; berat_kg: number | null; }
+
+// Stats-only row (separate from DistribusiRow which includes display fields)
+interface DistribusiStat { jumlah_paket: number; berat_kg: number | null; }
+
+const TAB_INTERVAL = 10000; // ms
 
 function useScaleToFit(w = 1920, h = 1080) {
   const [scale, setScale] = useState(1);
@@ -45,12 +51,15 @@ export default function DashboardClient() {
   const [hewan,      setHewan]      = useState<HewanRow[]>([]);
   const [peserta,    setPeserta]    = useState<PesertaRow[]>([]);
   const [distribusi, setDistribusi] = useState<DistribusiRow[]>([]);
+  const [distStat,   setDistStat]   = useState<DistribusiStat[]>([]);
   const [panitia,    setPanitia]    = useState('Panitia Qurban');
   const [jadwal,     setJadwal]     = useState<JadwalSholat[]>(JADWAL_FALLBACK);
   const [hijriahStr, setHijriahStr] = useState('');
+  const [activeTab,  setActiveTab]  = useState<'shohibul' | 'distribusi'>('shohibul');
   const [showFs,     setShowFs]     = useState(true);
   const [isFs,       setIsFs]       = useState(false);
-  const fsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fsTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tabTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Google Fonts
   useEffect(() => {
@@ -67,20 +76,15 @@ export default function DashboardClient() {
     return () => clearInterval(t);
   }, []);
 
-  // Jadwal sholat + tanggal hijriah dari Aladhan API
+  // Jadwal sholat + tanggal hijriah
   useEffect(() => {
     async function fetchJadwal() {
       try {
         const today = new Date();
-        const d = today.getDate();
-        const m = today.getMonth() + 1;
-        const y = today.getFullYear();
-        const res = await fetch(
-          `https://api.aladhan.com/v1/timingsByCity/${d}-${m}-${y}?city=Yogyakarta&country=Indonesia&method=11`
-        );
+        const d = today.getDate(), m = today.getMonth() + 1, y = today.getFullYear();
+        const res  = await fetch(`https://api.aladhan.com/v1/timingsByCity/${d}-${m}-${y}?city=Yogyakarta&country=Indonesia&method=11`);
         const json = await res.json();
-        const t = json.data.timings;
-        const h = json.data.date.hijri;
+        const t = json.data.timings, h = json.data.date.hijri;
         setJadwal([
           { nama: 'Subuh',   waktu: t.Fajr.slice(0, 5),    icon: '🌙' },
           { nama: 'Terbit',  waktu: t.Sunrise.slice(0, 5),  icon: '🌄' },
@@ -91,9 +95,7 @@ export default function DashboardClient() {
         ]);
         const bulan = HIJRIAH_MONTHS[Number(h.month.number) - 1] ?? h.month.en;
         setHijriahStr(`${h.day} ${bulan} ${h.year} H`);
-      } catch {
-        // fallback sudah di-set sebagai initial state
-      }
+      } catch { /* fallback */ }
     }
     fetchJadwal();
   }, []);
@@ -104,12 +106,15 @@ export default function DashboardClient() {
       const [h, p, d, s] = await Promise.all([
         supabase.from('hewan').select('jenis, status'),
         supabase.from('peserta').select('id, nama, alamat, jenis_hewan, hewan(status, nama_hewan)').order('created_at'),
-        supabase.from('distribusi').select('jumlah_paket, berat_kg'),
+        supabase.from('distribusi').select('id, nama_penerima, alamat, jumlah_paket, berat_kg').order('created_at'),
         supabase.from('settings').select('nama_panitia').limit(1).single(),
       ]);
       if (h.data) setHewan(h.data);
       if (p.data) setPeserta(p.data as unknown as PesertaRow[]);
-      if (d.data) setDistribusi(d.data);
+      if (d.data) {
+        setDistribusi(d.data as DistribusiRow[]);
+        setDistStat(d.data.map(r => ({ jumlah_paket: r.jumlah_paket, berat_kg: r.berat_kg })));
+      }
       if (s.data?.nama_panitia) setPanitia(s.data.nama_panitia);
     }
     load();
@@ -121,6 +126,19 @@ export default function DashboardClient() {
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Tab auto-toggle — hanya aktif jika ada data distribusi
+  useEffect(() => {
+    if (tabTimer.current) clearInterval(tabTimer.current);
+    if (distribusi.length === 0) {
+      setActiveTab('shohibul');
+      return;
+    }
+    tabTimer.current = setInterval(() => {
+      setActiveTab(t => t === 'shohibul' ? 'distribusi' : 'shohibul');
+    }, TAB_INTERVAL);
+    return () => { if (tabTimer.current) clearInterval(tabTimer.current); };
+  }, [distribusi.length]);
 
   // Fullscreen auto-hide
   useEffect(() => {
@@ -150,8 +168,8 @@ export default function DashboardClient() {
   const kambingDone    = hewan.filter(h => h.jenis === 'kambing_domba' && h.status === 'sudah_disembelih').length;
   const sapiPeserta    = peserta.filter(p => p.jenis_hewan === 'sapi').length;
   const kambingPeserta = peserta.filter(p => p.jenis_hewan === 'kambing_domba').length;
-  const totalPaket     = distribusi.reduce((s, d) => s + d.jumlah_paket, 0);
-  const totalBerat     = distribusi.reduce((s, d) => s + (d.berat_kg ?? 0), 0);
+  const totalPaket     = distStat.reduce((s, d) => s + d.jumlah_paket, 0);
+  const totalBerat     = distStat.reduce((s, d) => s + (d.berat_kg ?? 0), 0);
 
   // Clock strings
   const timeStr = now
@@ -168,6 +186,17 @@ export default function DashboardClient() {
         return hh * 60 + mm > now.getHours() * 60 + now.getMinutes();
       })
     : -1;
+
+  const pane = (tab: 'shohibul' | 'distribusi') => ({
+    position: 'absolute' as const,
+    inset: 0,
+    padding: '28px 52px 28px 40px',
+    display: 'flex', flexDirection: 'column' as const,
+    overflow: 'hidden',
+    opacity: activeTab === tab ? 1 : 0,
+    transition: 'opacity .7s ease',
+    pointerEvents: (activeTab === tab ? 'auto' : 'none') as 'auto' | 'none',
+  });
 
   return (
     <>
@@ -205,22 +234,61 @@ export default function DashboardClient() {
               jadwal={jadwal}
             />
 
-            {/* Right panel */}
-            <div style={{ display: 'flex', flexDirection: 'column', padding: '28px 52px 28px 40px', overflow: 'hidden' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>
-                <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '.5px' }}>
-                  Daftar Shohibul Qurban
+            {/* Right panel — two absolute panes with fade transition */}
+            <div style={{ position: 'relative', overflow: 'hidden' }}>
+
+              {/* Pane: Shohibul Qurban */}
+              <div style={pane('shohibul')}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>
+                  <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '.5px' }}>
+                    Daftar Shohibul Qurban
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    {distribusi.length > 0 && (
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: C.green1 }} />
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: C.div }} />
+                      </div>
+                    )}
+                    <div style={{ fontSize: 16, color: '#9fd49f', fontWeight: 600, background: C.bg2, border: `1px solid ${C.div}`, borderRadius: 99, padding: '6px 20px' }}>
+                      {peserta.length} Shohibul Qurban
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: 16, color: '#9fd49f', fontWeight: 600, background: C.bg2, border: `1px solid ${C.div}`, borderRadius: 99, padding: '6px 20px' }}>
-                  {peserta.length} Shohibul Qurban
+                <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr 220px 130px 160px', gap: '0 16px', padding: '12px 20px', background: C.bg2, borderRadius: 10, marginBottom: 10, flexShrink: 0 }}>
+                  {([['No','center'],['Nama Shohibul Qurban','left'],['Alamat','left'],['Hewan','right'],['Status','right']] as const).map(([col, align]) => (
+                    <div key={col} style={{ fontSize: 18, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#9fd49f', textAlign: align }}>{col}</div>
+                  ))}
                 </div>
+                <ScrollList rows={peserta} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr 220px 130px 160px', gap: '0 16px', padding: '12px 20px', background: C.bg2, borderRadius: 10, marginBottom: 10, flexShrink: 0 }}>
-                {([['No','center'],['Nama Shohibul Qurban','left'],['Alamat','left'],['Hewan','right'],['Status','right']] as const).map(([col, align]) => (
-                  <div key={col} style={{ fontSize: 18, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#9fd49f', textAlign: align }}>{col}</div>
-                ))}
+
+              {/* Pane: Penerima Daging */}
+              <div style={pane('distribusi')}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>
+                  <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '.5px' }}>
+                    Daftar Penerima Daging
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    {distribusi.length > 0 && (
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: C.div }} />
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: C.gold }} />
+                      </div>
+                    )}
+                    <div style={{ fontSize: 16, color: C.gold, fontWeight: 600, background: C.bg2, border: `1px solid ${C.div}`, borderRadius: 99, padding: '6px 20px' }}>
+                      {distribusi.length} Penerima Daging
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '50px 1fr 220px 130px 130px', gap: '0 16px', padding: '12px 20px', background: C.bg2, borderRadius: 10, marginBottom: 10, flexShrink: 0 }}>
+                  {([['No','center'],['Nama Penerima','left'],['Alamat','left'],['Jumlah','right'],['Berat (kg)','right']] as const).map(([col, align]) => (
+                    <div key={col} style={{ fontSize: 18, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: C.gold, textAlign: align }}>{col}</div>
+                  ))}
+                </div>
+                <DistribusiScrollList rows={distribusi} />
               </div>
-              <ScrollList rows={peserta} />
+
             </div>
           </div>
 
