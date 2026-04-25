@@ -258,7 +258,9 @@ export default function HewanPage() {
         const updates = reordered.map((h, i) => ({ id: h.id, position: i + 1 }));
         setHewan((prev) => {
           const map = new Map(updates.map((u) => [u.id, u.position]));
-          return prev.map((h) => map.has(h.id) ? { ...h, position: map.get(h.id)! } : h);
+          return prev
+            .map((h) => map.has(h.id) ? { ...h, position: map.get(h.id)! } : h)
+            .sort((a, b) => (a.position ?? 999) - (b.position ?? 999));
         });
         await Promise.all(updates.map(({ id, position }) =>
           supabase.from("hewan").update({ position }).eq("id", id)
