@@ -10,21 +10,26 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   DndContext,
   DragEndEvent,
+  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   MouseSensor,
   TouchSensor,
-  useDraggable,
-  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { createClient } from "@/lib/supabase/client";
 import { Hewan, JenisHewan, StatusHewan } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { Beef, GripVertical, LayoutGrid, List, Pencil, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const emptyForm = {
   jenis: "kambing_domba" as JenisHewan,
@@ -43,7 +48,10 @@ const STATUS_COLS: { id: StatusHewan; label: string; variant: "gray" | "green" }
   { id: "sudah_disembelih", label: "Sudah Disembelih", variant: "green" },
 ];
 
-function DraggableCard({
+// Prefix to distinguish column droppables from card sortables
+const colId = (s: StatusHewan) => `col:${s}`;
+
+function SortableCard({
   h,
   onEdit,
   onDelete,
@@ -52,11 +60,11 @@ function DraggableCard({
   onEdit: (h: Hewan) => void;
   onDelete: (id: string) => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: h.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: h.id });
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform), opacity: isDragging ? 0.4 : 1 }}
+      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }}
       className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm"
     >
       <div className="flex items-start gap-2">
@@ -97,33 +105,6 @@ function DraggableCard({
   );
 }
 
-function DroppableColumn({
-  status,
-  label,
-  variant,
-  children,
-}: {
-  status: StatusHewan;
-  label: string;
-  variant: "gray" | "green";
-  children: React.ReactNode;
-}) {
-  const { isOver, setNodeRef } = useDroppable({ id: status });
-  return (
-    <div
-      ref={setNodeRef}
-      className={`flex-1 rounded-xl border-2 transition-colors ${
-        isOver ? "border-green-400 bg-green-50" : "border-slate-200 bg-slate-50"
-      }`}
-    >
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200">
-        <Badge variant={variant}>{label}</Badge>
-      </div>
-      <div className="p-3 space-y-2 min-h-[200px]">{children}</div>
-    </div>
-  );
-}
-
 export default function HewanPage() {
   const supabase = createClient();
   const [hewan, setHewan] = useState<Hewan[]>([]);
@@ -136,6 +117,8 @@ export default function HewanPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [activeHewan, setActiveHewan] = useState<Hewan | null>(null);
+  // Track which column the dragged card is currently over (for cross-column visual)
+  const overStatusRef = useRef<StatusHewan | null>(null);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
@@ -143,12 +126,16 @@ export default function HewanPage() {
   );
 
   async function fetchData() {
-    const { data } = await supabase.from("hewan").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("hewan")
+      .select("*")
+      .order("position", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: true });
     setHewan(data ?? []);
     setLoading(false);
   }
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function openAdd() { setEditId(null); setForm(emptyForm); setModalOpen(true); }
 
@@ -191,17 +178,89 @@ export default function HewanPage() {
 
   function handleDragStart(event: DragStartEvent) {
     setActiveHewan(hewan.find((h) => h.id === event.active.id) ?? null);
+    overStatusRef.current = null;
+  }
+
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeCard = hewan.find((h) => h.id === active.id);
+    if (!activeCard) return;
+
+    // Determine target status
+    const overId = String(over.id);
+    const targetStatus = overId.startsWith("col:")
+      ? (overId.slice(4) as StatusHewan)
+      : hewan.find((h) => h.id === over.id)?.status;
+
+    if (!targetStatus || targetStatus === activeCard.status) {
+      overStatusRef.current = targetStatus ?? null;
+      return;
+    }
+
+    // Cross-column: move card into new column visually (optimistic)
+    overStatusRef.current = targetStatus;
+    setHewan((prev) => {
+      const updated = prev.map((h) =>
+        h.id === activeCard.id ? { ...h, status: targetStatus } : h
+      );
+      // Re-position at the end of target column
+      const targetCards = updated.filter((h) => h.status === targetStatus && h.id !== activeCard.id);
+      const maxPos = targetCards.reduce((m, h) => Math.max(m, h.position ?? 0), 0);
+      return updated.map((h) =>
+        h.id === activeCard.id ? { ...h, position: maxPos + 1 } : h
+      );
+    });
   }
 
   async function handleDragEnd(event: DragEndEvent) {
-    setActiveHewan(null);
     const { active, over } = event;
-    if (!over) return;
-    const newStatus = over.id as StatusHewan;
-    const h = hewan.find((h) => h.id === active.id);
-    if (!h || h.status === newStatus) return;
-    setHewan((prev) => prev.map((item) => item.id === h.id ? { ...item, status: newStatus } : item));
-    await supabase.from("hewan").update({ status: newStatus }).eq("id", h.id);
+    setActiveHewan(null);
+    overStatusRef.current = null;
+    if (!over) { fetchData(); return; }
+
+    const activeCard = hewan.find((h) => h.id === active.id);
+    if (!activeCard) return;
+
+    const overId = String(over.id);
+    const isOverCol = overId.startsWith("col:");
+    const overCard = isOverCol ? null : hewan.find((h) => h.id === over.id);
+    const targetStatus = isOverCol
+      ? (overId.slice(4) as StatusHewan)
+      : overCard?.status ?? activeCard.status;
+
+    // Build final ordered list for the target column
+    const colCards = hewan.filter((h) => h.status === targetStatus);
+
+    let reordered: Hewan[];
+    if (targetStatus !== activeCard.status || isOverCol) {
+      // Cross-column drop or drop on empty column header: card already moved via handleDragOver
+      reordered = colCards;
+    } else {
+      // Same-column reorder
+      const oldIdx = colCards.findIndex((h) => h.id === active.id);
+      const newIdx = colCards.findIndex((h) => h.id === over.id);
+      if (oldIdx === newIdx) return;
+      reordered = arrayMove(colCards, oldIdx, newIdx);
+    }
+
+    // Assign sequential positions
+    const updates = reordered.map((h, i) => ({ id: h.id, position: i + 1, status: h.status }));
+
+    // Optimistic update
+    setHewan((prev) => {
+      const map = new Map(updates.map((u) => [u.id, u]));
+      return prev.map((h) => map.has(h.id) ? { ...h, position: map.get(h.id)!.position, status: map.get(h.id)!.status } : h)
+        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    });
+
+    // Persist to Supabase
+    await Promise.all(
+      updates.map(({ id, position, status }) =>
+        supabase.from("hewan").update({ position, status }).eq("id", id)
+      )
+    );
   }
 
   const filtered = filterJenis === "semua" ? hewan : hewan.filter((h) => h.jenis === filterJenis);
@@ -273,18 +332,37 @@ export default function HewanPage() {
           action={<Button onClick={openAdd} size="sm"><Plus size={14} />Tambah Hewan</Button>}
         />
       ) : viewMode === "kanban" ? (
-        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
           <div className="flex gap-4">
-            {STATUS_COLS.map(({ id, label, variant }) => (
-              <DroppableColumn key={id} status={id} label={label} variant={variant}>
-                {filtered.filter((h) => h.status === id).map((h) => (
-                  <DraggableCard key={h.id} h={h} onEdit={openEdit} onDelete={(id) => setDeleteId(id)} />
-                ))}
-                {filtered.filter((h) => h.status === id).length === 0 && (
-                  <p className="text-xs text-slate-400 text-center py-8">Tidak ada hewan</p>
-                )}
-              </DroppableColumn>
-            ))}
+            {STATUS_COLS.map(({ id, label, variant }) => {
+              const colCards = filtered.filter((h) => h.status === id);
+              return (
+                <div
+                  key={id}
+                  id={colId(id)}
+                  className={`flex-1 rounded-xl border-2 transition-colors ${
+                    activeHewan && overStatusRef.current === id && activeHewan.status !== id
+                      ? "border-green-400 bg-green-50"
+                      : "border-slate-200 bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200">
+                    <Badge variant={variant}>{label}</Badge>
+                    <span className="text-xs text-slate-400 ml-auto">{colCards.length}</span>
+                  </div>
+                  <div className="p-3 space-y-2 min-h-[200px]">
+                    <SortableContext items={colCards.map((h) => h.id)} strategy={verticalListSortingStrategy}>
+                      {colCards.map((h) => (
+                        <SortableCard key={h.id} h={h} onEdit={openEdit} onDelete={(id) => setDeleteId(id)} />
+                      ))}
+                    </SortableContext>
+                    {colCards.length === 0 && (
+                      <p className="text-xs text-slate-400 text-center py-8">Tidak ada hewan</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
           <DragOverlay>
             {activeHewan && (
