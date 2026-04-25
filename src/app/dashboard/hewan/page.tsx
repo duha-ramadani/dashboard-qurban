@@ -10,11 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   DndContext,
   DragEndEvent,
-  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   MouseSensor,
   TouchSensor,
+  closestCorners,
   useDroppable,
   useSensor,
   useSensors,
@@ -103,7 +103,6 @@ function SortableCard({
   );
 }
 
-// Proper droppable column registered with DnD Kit
 function DroppableColumn({
   status,
   label,
@@ -144,8 +143,6 @@ function DroppableColumn({
 export default function HewanPage() {
   const supabase = createClient();
 
-  // Use a ref alongside state so drag handlers always read the latest value
-  // without depending on React's async re-render cycle.
   const [hewan, setHewanState] = useState<Hewan[]>([]);
   const hewanRef = useRef<Hewan[]>([]);
   function setHewan(updater: Hewan[] | ((prev: Hewan[]) => Hewan[])) {
@@ -227,39 +224,11 @@ export default function HewanPage() {
     setActiveHewan(card ?? null);
   }
 
-  function handleDragOver(event: DragOverEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
+    setActiveHewan(null);
     const { active, over } = event;
     if (!over) return;
 
-    const current = hewanRef.current;
-    const activeCard = current.find((h) => h.id === active.id);
-    if (!activeCard) return;
-
-    const overId = String(over.id);
-    const targetStatus: StatusHewan | undefined = overId.startsWith("col:")
-      ? (overId.slice(4) as StatusHewan)
-      : current.find((h) => h.id === over.id)?.status;
-
-    // Only act on cross-column moves
-    if (!targetStatus || targetStatus === activeCard.status) return;
-
-    setHewan((prev) => {
-      const targetCards = prev.filter((h) => h.status === targetStatus && h.id !== activeCard.id);
-      const maxPos = targetCards.reduce((m, h) => Math.max(m, h.position ?? 0), 0);
-      return prev.map((h) =>
-        h.id === activeCard.id ? { ...h, status: targetStatus, position: maxPos + 1 } : h
-      );
-    });
-  }
-
-  async function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    setActiveHewan(null);
-
-    // Dropped outside all droppables — revert
-    if (!over) { fetchData(); return; }
-
-    // Always read from ref to get state updated by handleDragOver
     const current = hewanRef.current;
     const activeCard = current.find((h) => h.id === active.id);
     if (!activeCard) return;
@@ -270,34 +239,34 @@ export default function HewanPage() {
       ? (overId.slice(4) as StatusHewan)
       : (current.find((h) => h.id === over.id)?.status ?? activeCard.status);
 
-    const colCards = current.filter((h) => h.status === targetStatus);
-
-    let reordered: Hewan[];
-    if (isOverCol || activeCard.status !== targetStatus) {
-      // Cross-column or dropped on column header: handleDragOver already moved the card
-      reordered = colCards;
-    } else {
-      // Same-column reorder
-      const oldIdx = colCards.findIndex((h) => h.id === active.id);
-      const newIdx = colCards.findIndex((h) => h.id === over.id);
-      if (oldIdx === -1 || newIdx === -1 || oldIdx === newIdx) return;
-      reordered = arrayMove(colCards, oldIdx, newIdx);
+    try {
+      if (activeCard.status !== targetStatus) {
+        // Cross-column: move to end of target column
+        const targetCards = current.filter((h) => h.status === targetStatus);
+        const newPos = targetCards.reduce((m, h) => Math.max(m, h.position ?? 0), 0) + 1;
+        setHewan((prev) =>
+          prev.map((h) => h.id === activeCard.id ? { ...h, status: targetStatus, position: newPos } : h)
+        );
+        await supabase.from("hewan").update({ status: targetStatus, position: newPos }).eq("id", activeCard.id);
+      } else if (!isOverCol) {
+        // Same-column reorder
+        const colCards = current.filter((h) => h.status === targetStatus);
+        const oldIdx = colCards.findIndex((h) => h.id === active.id);
+        const newIdx = colCards.findIndex((h) => h.id === over.id);
+        if (oldIdx === -1 || newIdx === -1 || oldIdx === newIdx) return;
+        const reordered = arrayMove(colCards, oldIdx, newIdx);
+        const updates = reordered.map((h, i) => ({ id: h.id, position: i + 1 }));
+        setHewan((prev) => {
+          const map = new Map(updates.map((u) => [u.id, u.position]));
+          return prev.map((h) => map.has(h.id) ? { ...h, position: map.get(h.id)! } : h);
+        });
+        await Promise.all(updates.map(({ id, position }) =>
+          supabase.from("hewan").update({ position }).eq("id", id)
+        ));
+      }
+    } catch {
+      fetchData();
     }
-
-    const updates = reordered.map((h, i) => ({ id: h.id, position: i + 1, status: targetStatus }));
-
-    setHewan((prev) => {
-      const map = new Map(updates.map((u) => [u.id, u]));
-      return prev
-        .map((h) => (map.has(h.id) ? { ...h, ...map.get(h.id) } : h))
-        .sort((a, b) => (a.position ?? 999) - (b.position ?? 999));
-    });
-
-    await Promise.all(
-      updates.map(({ id, position, status }) =>
-        supabase.from("hewan").update({ position, status }).eq("id", id)
-      )
-    );
   }
 
   const filtered = filterJenis === "semua" ? hewan : hewan.filter((h) => h.jenis === filterJenis);
@@ -369,7 +338,12 @@ export default function HewanPage() {
           action={<Button onClick={openAdd} size="sm"><Plus size={14} />Tambah Hewan</Button>}
         />
       ) : viewMode === "kanban" ? (
-        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
           <div className="flex gap-4">
             {STATUS_COLS.map(({ id, label, variant }) => {
               const colCards = filtered.filter((h) => h.status === id);
