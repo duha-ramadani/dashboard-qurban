@@ -11,6 +11,7 @@ export interface Hewan {
   harga: number;
   status: StatusHewan;
   keterangan: string | null;
+  position: number | null;
   created_at: string;
   updated_at: string;
 }
