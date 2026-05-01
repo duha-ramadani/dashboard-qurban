@@ -124,10 +124,10 @@ export default function LaporanPage() {
                 { label: "Total Pemasukan", value: formatCurrency(totalPemasukan), sub: "dari semua shohibul" },
                 { label: "Paket Distribusi",value: totalPaket,              sub: `${distribusi.length} penerima` },
               ].map(({ label, value, sub }) => (
-                <div key={label} className="bg-slate-50 rounded-lg p-4">
-                  <p className="text-xs text-slate-500 mb-1">{label}</p>
-                  <p className="text-lg font-bold text-slate-800">{value}</p>
-                  <p className="text-xs text-slate-400">{sub}</p>
+                <div key={label} className="bg-slate-50 rounded-lg p-3 sm:p-4">
+                  <p className="text-[10px] sm:text-xs text-slate-500 mb-1 leading-tight">{label}</p>
+                  <p className="text-sm sm:text-lg font-bold text-slate-800 truncate">{value}</p>
+                  <p className="text-[10px] sm:text-xs text-slate-400">{sub}</p>
                 </div>
               ))}
             </div>
@@ -181,13 +181,14 @@ export default function LaporanPage() {
       <Card>
         <CardHeader><CardTitle>Rekap Hewan per Jenis</CardTitle></CardHeader>
         <CardContent className="p-0">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[360px]">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
-                <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase">Jenis</th>
-                <th className="text-center px-6 py-3 text-xs font-medium text-slate-500 uppercase">Total</th>
-                <th className="text-center px-6 py-3 text-xs font-medium text-slate-500 uppercase">Belum Disembelih</th>
-                <th className="text-center px-6 py-3 text-xs font-medium text-slate-500 uppercase">Sudah Disembelih</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Jenis</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase">Total</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase">Belum</th>
+                <th className="text-center px-4 py-3 text-xs font-medium text-slate-500 uppercase">Sudah</th>
               </tr>
             </thead>
             <tbody>
@@ -195,14 +196,14 @@ export default function LaporanPage() {
                 const list = hewan.filter((h) => h.jenis === jenis);
                 return (
                   <tr key={jenis} className="border-b border-slate-50">
-                    <td className="px-6 py-3 font-medium text-slate-700">
+                    <td className="px-4 py-3 font-medium text-slate-700">
                       {jenis === "sapi" ? "🐄 Sapi" : "🐐 Kambing/Domba"}
                     </td>
-                    <td className="px-6 py-3 text-center font-medium">{list.length}</td>
-                    <td className="px-6 py-3 text-center text-slate-500">
+                    <td className="px-4 py-3 text-center font-medium">{list.length}</td>
+                    <td className="px-4 py-3 text-center text-slate-500">
                       {list.filter((h) => h.status === "belum_disembelih").length}
                     </td>
-                    <td className="px-6 py-3 text-center text-green-600">
+                    <td className="px-4 py-3 text-center text-green-600">
                       {list.filter((h) => h.status === "sudah_disembelih").length}
                     </td>
                   </tr>
@@ -210,6 +211,7 @@ export default function LaporanPage() {
               })}
             </tbody>
           </table>
+          </div>
         </CardContent>
       </Card>
     </div>
