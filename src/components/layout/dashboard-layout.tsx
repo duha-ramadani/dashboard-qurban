@@ -28,8 +28,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           "transition-all duration-200 min-h-screen",
           // Desktop: push right by sidebar width
           collapsed ? "md:ml-16" : "md:ml-56",
-          // Mobile: space for top header (56px) and bottom nav (60px)
-          "pt-14 md:pt-0 pb-16 md:pb-0"
+          // Mobile: space for top header (56px) and bottom nav (~60px + safe area)
+          "pt-14 md:pt-0 pb-24 md:pb-0"
         )}
       >
         <div className="p-4 md:p-6">{children}</div>

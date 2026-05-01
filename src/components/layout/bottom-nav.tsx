@@ -16,7 +16,10 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 flex safe-area-inset-bottom">
+    <nav
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 flex"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
       {navItems.map(({ href, label, icon: Icon }) => {
         const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
         return (
