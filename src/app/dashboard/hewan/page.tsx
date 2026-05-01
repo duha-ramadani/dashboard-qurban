@@ -314,7 +314,7 @@ export default function HewanPage() {
       </div>
 
       {/* Filter */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 overflow-x-auto pb-0.5 no-scrollbar">
         {([
           { key: "semua", label: `Semua (${hewan.length})` },
           { key: "sapi", label: `🐄 Sapi (${counts.sapi})` },
@@ -323,7 +323,7 @@ export default function HewanPage() {
           <button
             key={key}
             onClick={() => setFilterJenis(key)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               filterJenis === key
                 ? "bg-green-600 text-white"
                 : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
