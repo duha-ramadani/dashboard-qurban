@@ -215,34 +215,36 @@ export default function DashboardPage() {
               Belum ada data shohibul qurban
             </div>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Nama</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Alamat</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">No. HP</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Hewan</th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentPeserta.map((p) => (
-                  <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50">
-                    <td className="px-6 py-3 font-medium text-slate-800">{p.nama}</td>
-                    <td className="px-6 py-3 text-slate-600">{p.alamat ?? "-"}</td>
-                    <td className="px-6 py-3 text-slate-600">{p.no_hp ?? "-"}</td>
-                    <td className="px-6 py-3 text-slate-600">
-                      {p.hewan?.nama_hewan ?? (p.jenis_hewan === "sapi" ? "🐄 Sapi" : "🐐 Kambing/Domba")}
-                    </td>
-                    <td className="px-6 py-3 text-right">
-                      <Badge variant={p.status_bayar === "lunas" ? "green" : "red"}>
-                        {p.status_bayar === "lunas" ? "Lunas" : "Belum"}
-                      </Badge>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[400px]">
+                <thead>
+                  <tr className="border-b border-slate-100">
+                    <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Nama</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide hidden sm:table-cell">Alamat</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide hidden sm:table-cell">No. HP</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Hewan</th>
+                    <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {recentPeserta.map((p) => (
+                    <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50">
+                      <td className="px-4 py-3 font-medium text-slate-800">{p.nama}</td>
+                      <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{p.alamat ?? "-"}</td>
+                      <td className="px-4 py-3 text-slate-600 hidden sm:table-cell">{p.no_hp ?? "-"}</td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {p.hewan?.nama_hewan ?? (p.jenis_hewan === "sapi" ? "🐄 Sapi" : "🐐 Kambing/Domba")}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Badge variant={p.status_bayar === "lunas" ? "green" : "red"}>
+                          {p.status_bayar === "lunas" ? "Lunas" : "Belum"}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </CardContent>
       </Card>
