@@ -279,7 +279,7 @@ export default function HewanPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Data Hewan</h1>
           <p className="text-sm text-slate-500 mt-0.5">Manajemen stok hewan qurban</p>
@@ -305,7 +305,11 @@ export default function HewanPage() {
               <List size={16} />
             </button>
           </div>
-          <Button onClick={openAdd}><Plus size={16} />Tambah Hewan</Button>
+          <Button onClick={openAdd}>
+            <Plus size={16} />
+            <span className="hidden sm:inline">Tambah Hewan</span>
+            <span className="sm:hidden">Tambah</span>
+          </Button>
         </div>
       </div>
 
@@ -346,7 +350,7 @@ export default function HewanPage() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-4">
             {STATUS_COLS.map(({ id, label, variant }) => {
               const colCards = filtered.filter((h) => h.status === id);
               return (
