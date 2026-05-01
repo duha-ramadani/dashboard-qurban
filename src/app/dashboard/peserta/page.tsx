@@ -106,14 +106,15 @@ export default function PesertaPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Shohibul Qurban</h1>
           <p className="text-sm text-slate-500 mt-0.5">Data shohibul qurban &amp; status pembayaran</p>
         </div>
         <Button onClick={openAdd}>
           <Plus size={16} />
-          Tambah Shohibul Qurban
+          <span className="hidden sm:inline">Tambah Shohibul Qurban</span>
+          <span className="sm:hidden">Tambah</span>
         </Button>
       </div>
 
@@ -124,15 +125,15 @@ export default function PesertaPage() {
           { label: "Lunas", value: lunas },
           { label: "Belum Bayar", value: belum },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-xs text-slate-500">{label}</p>
-            <p className="text-xl font-bold text-slate-800 mt-1">{value}</p>
+          <div key={label} className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4">
+            <p className="text-[10px] sm:text-xs text-slate-500 leading-tight">{label}</p>
+            <p className="text-lg sm:text-xl font-bold text-slate-800 mt-1">{value}</p>
           </div>
         ))}
       </div>
 
       {/* Search */}
-      <div className="relative max-w-xs">
+      <div className="relative w-full sm:max-w-xs">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
           type="text"

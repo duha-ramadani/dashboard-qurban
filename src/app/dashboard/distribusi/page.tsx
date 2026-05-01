@@ -115,7 +115,7 @@ export default function DistribusiPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Distribusi Daging</h1>
           <p className="text-sm text-slate-500 mt-0.5">
@@ -124,7 +124,8 @@ export default function DistribusiPage() {
         </div>
         <Button onClick={openAdd}>
           <Plus size={16} />
-          Tambah Distribusi
+          <span className="hidden sm:inline">Tambah Distribusi</span>
+          <span className="sm:hidden">Tambah</span>
         </Button>
       </div>
 
@@ -138,10 +139,10 @@ export default function DistribusiPage() {
         ].map(({ label, value }) => (
           <div
             key={label}
-            className="bg-white rounded-xl border border-slate-200 p-4"
+            className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4"
           >
-            <p className="text-xs text-slate-500">{label}</p>
-            <p className="text-xl font-bold text-slate-800 mt-1">{value}</p>
+            <p className="text-[10px] sm:text-xs text-slate-500 leading-tight">{label}</p>
+            <p className="text-lg sm:text-xl font-bold text-slate-800 mt-1">{value}</p>
           </div>
         ))}
       </div>
